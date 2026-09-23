@@ -83,6 +83,7 @@ namespace TaskAPI.Service.Services
             {
                 return null;
             }
+            //var task = new Entities.Entity.Task(dto.Title, dto.Description, task.CreatedAt, dto.DueDate);
             task.Title = dto.Title;
             task.Description = dto.Description;
             task.DueDate = dto.DueDate;

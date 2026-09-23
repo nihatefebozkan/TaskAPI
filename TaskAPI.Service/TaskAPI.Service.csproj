@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TaskAPI.Core\TaskAPI.Core.csproj" />
     <ProjectReference Include="..\TaskAPI.Entities\TaskAPI.Entities.csproj" />
   </ItemGroup>
 
