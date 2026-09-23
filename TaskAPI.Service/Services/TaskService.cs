@@ -15,11 +15,11 @@ namespace TaskAPI.Service.Services
         {
             _taskRepository = taskRepository;
         }
-        public TaskDto Create(TaskCreateDto dto)
+        public async Task<TaskDto> AddAsync(TaskCreateDto dto)
         {
             var task = new TaskAPI.Entities.Entity.Task(dto.Title, dto.Description, DateTime.UtcNow, dto.DueDate);
 
-            _taskRepository.Add(task);
+            await _taskRepository.AddAsync(task);
             return new TaskDto
             {
                 Id = task.Id,
@@ -27,26 +27,26 @@ namespace TaskAPI.Service.Services
                 Description = task.Description,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                IsCompleted = task.isCompleted(),
+                IsCompleted = task.isOverdue(),
             };
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var task = _taskRepository.Get(id);
+            var task = await _taskRepository.GetAsync(id);
             if (task == null)
             {
                 return false;
             }
-            _taskRepository.Delete(task);
+            await _taskRepository.DeleteAsync(task);
             return true;
         }
 
 
 
-        public List<TaskDto> GetAll()
+        public async Task<List<TaskDto>> GetAllAsync()
         {
-            var tasks = _taskRepository.GetAll();
+            var tasks = await _taskRepository.GetAllAsync();
             return tasks.Select(task => new TaskDto
             {
                 Id = task.Id,
@@ -54,13 +54,13 @@ namespace TaskAPI.Service.Services
                 Description = task.Description,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                IsCompleted = task.isCompleted(),
+                IsCompleted = task.isOverdue(),
             }).ToList();
         }
 
-        public TaskDto Get(int id)
+        public async Task<TaskDto> GetAsync(int id)
         {
-            var task = _taskRepository.Get(id);
+            var task = await _taskRepository.GetAsync(id);
             if (task == null)
             {
                 return null;
@@ -72,17 +72,21 @@ namespace TaskAPI.Service.Services
                 Description = task.Description,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                IsCompleted = task.isCompleted(),
+                IsCompleted = task.isOverdue(),
             };
         }
 
-        public TaskDto Update(int id, TaskUpdateDto dto)
+        public async Task<TaskDto> UpdateAsync(int id, TaskUpdateDto dto)
         {
-            var task = _taskRepository.Get(id);
+            var task = await _taskRepository.GetAsync(id);
             if (task == null)
             {
                 return null;
             }
+            task.Title = dto.Title;
+            task.Description = dto.Description;
+            task.DueDate = dto.DueDate;
+            await _taskRepository.UpdateAsync(task);
             return new TaskDto
             {
                 Id = task.Id,
@@ -90,7 +94,7 @@ namespace TaskAPI.Service.Services
                 Description = task.Description,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                IsCompleted = task.isCompleted(),
+                IsCompleted = task.isOverdue(),
             };
         }
     }

@@ -7,10 +7,10 @@ namespace TaskAPI.Entities.Interfaces
 {
     public interface ITaskRepository
     {
-        List<TaskAPI.Entities.Entity.Task> GetAll();
-        TaskAPI.Entities.Entity.Task Get(int id);
-        void Add(TaskAPI.Entities.Entity.Task task);
-        void Update(TaskAPI.Entities.Entity.Task task);
-        void Delete(TaskAPI.Entities.Entity.Task task);
+        Task<List<Entity.Task>> GetAllAsync();
+        Task<Entity.Task> GetAsync(int id);
+        Task<Entity.Task> AddAsync(Entity.Task task);
+        Task<Entity.Task> UpdateAsync(Entity.Task task);
+        Task<Entity.Task> DeleteAsync(Entity.Task task);
     }
 }

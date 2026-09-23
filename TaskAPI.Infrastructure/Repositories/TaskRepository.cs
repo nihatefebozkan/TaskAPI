@@ -14,25 +14,28 @@ namespace TaskAPI.Infrastructure.Repositories
         {
             _context = context;
         }
-        public List<Entities.Entity.Task> GetAll() => _context.Tasks.ToList(); // bu metod, veritabanındaki tüm TaskAPI.Entities.Models.Entity.Task nesnelerini döndürür.
-        public void Add(Entities.Entity.Task task) //bu metod, TaskAPI.Entities.Models.Entity.Task nesnesini alır ve veritabanına ekler. SaveChanges() metodu ile değişiklikleri kaydeder.
+        public async Task<List<Entities.Entity.Task>> GetAllAsync() => await _context.Tasks.ToListAsync(); // bu metod, veritabanındaki tüm TaskAPI.Entities.Models.Entity.Task nesnelerini döndürür.
+        public async Task<Entities.Entity.Task> AddAsync(Entities.Entity.Task task) //bu metod, TaskAPI.Entities.Models.Entity.Task nesnesini alır ve veritabanına ekler. SaveChanges() metodu ile değişiklikleri kaydeder.
         {
             _context.Tasks.Add(task);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            return task;
         }
-        public Entities.Entity.Task Get(int id) //bu metod, verilen id'ye sahip TaskAPI.Entities.Models.Entity.Task nesnesini döndürür. Eğer nesne bulunamazsa null döner.
+        public async Task<Entities.Entity.Task> GetAsync(int id) //bu metod, verilen id'ye sahip TaskAPI.Entities.Models.Entity.Task nesnesini döndürür. Eğer nesne bulunamazsa null döner.
         {
-            return _context.Tasks.FirstOrDefault(t => t.Id == id);
+            return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
         }
-        public void Update(Entities.Entity.Task task) //bu metod, verilen TaskAPI.Entities.Models.Entity.Task nesnesini günceller ve SaveChanges() metodu ile değişiklikleri kaydeder.
+        public async Task<Entities.Entity.Task> UpdateAsync(Entities.Entity.Task task) //bu metod, verilen TaskAPI.Entities.Models.Entity.Task nesnesini günceller ve SaveChanges() metodu ile değişiklikleri kaydeder.
         {
             _context.Tasks.Update(task);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            return task;
         }
-        public void Delete(Entities.Entity.Task task) //bu metod, verilen TaskAPI.Entities.Models.Entity.Task nesnesini siler ve SaveChanges() metodu ile değişiklikleri kaydeder.
+        public async Task<Entities.Entity.Task> DeleteAsync(Entities.Entity.Task task) //bu metod, verilen TaskAPI.Entities.Models.Entity.Task nesnesini siler ve SaveChanges() metodu ile değişiklikleri kaydeder.
         {
             _context.Tasks.Remove(task);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            return task;
         }
     }
 }

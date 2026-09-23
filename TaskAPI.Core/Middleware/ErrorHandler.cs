@@ -23,7 +23,7 @@ namespace TaskAPI.Core.Middleware
                 var response = new ResponseModel<object> { Success = false, Result = (object?)null, Error = error };
                 await context.Response.WriteAsJsonAsync(response);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError; // Set the response status code to 500 Internal Server Error
                 context.Response.ContentType = "application/json"; // Set the response content type to JSON

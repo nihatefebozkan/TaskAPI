@@ -26,7 +26,7 @@ namespace TaskAPI.Entities.Entity
             DueDate = dueDate;
         }
 
-        public bool isCompleted()
+        public bool isOverdue()
         {
             return DateTime.Now > DueDate; //tarih kontrolü yapar ve true veya false döndürür
         }
