@@ -16,15 +16,16 @@ namespace TaskAPI.Entities.Entity
             {
                 throw new ArgumentException("Başlık 100 karakterden uzun olamaz.");
             }
-            //if (dueDate < createdAt)
-            //{
-            //    throw new ArgumentException("Bitiş tarihi oluşturma tarihinden önce olamaz.");
-            //}
+            if (dueDate < createdAt)
+            {
+                throw new ArgumentException("Bitiş tarihi oluşturma tarihinden önce olamaz.");
+            }
             Title = title;
             Description = description;
             CreatedAt = createdAt;
             DueDate = dueDate;
         }
+        private Task() { } // for EF Core nullability
 
         public bool isOverdue()
         {

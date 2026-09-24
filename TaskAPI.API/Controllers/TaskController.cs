@@ -168,7 +168,8 @@ namespace TaskAPI.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => taskService.GetAllAsync(), logger, HttpContext, "Get All Task");
+            await OperationExecutor.RunAsync(async () => await System.Threading.Tasks.Task.Delay(3000), logger, HttpContext, "Get All Task");
+            var response = await OperationExecutor.ExecuteAsync(async () => await taskService.GetAllAsync(), logger, HttpContext, "Get All Task");
             {
                 if (!response.Success)
                 {
