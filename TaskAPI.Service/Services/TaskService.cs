@@ -60,6 +60,7 @@ namespace TaskAPI.Service.Services
 
         public async Task<TaskDto> GetAsync(int id)
         {
+            //throw new Exception("Test Hatası");
             var task = await _taskRepository.GetAsync(id);
             if (task == null)
             {
