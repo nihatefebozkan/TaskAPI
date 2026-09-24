@@ -1,22 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskAPI.Entities.Dtos;
 using TaskAPI.Entities.Interfaces;
+using TaskAPI.Core.Helpers;
 
 
 namespace TaskAPI.API.Controllers
 {
         [ApiController]
         [Route("api/[controller]")]
-        public class AuthController(IAuthService authService) : ControllerBase
+        public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
         {
-            [HttpPost("register")]
-            public IActionResult Register(RegisterDto registerDto)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterDto registerDto)
             {
-                var result = authService.Register(registerDto);
-                if (!result)
-                return Conflict("Bu kullanıcı adı zaten kullanılıyor.");
-                return StatusCode(201,"Kullanıcı başarıyla kaydedildi.");
-            }
+            var result = await OperationExecutor.ExecuteAsync(async () => await authService.RegisterAsync(registerDto), logger, HttpContext, "Kayıt Ol");
+
+        }
         }
 }
 

@@ -22,11 +22,11 @@ namespace TaskAPI.API.Controllers
             }
             if (response.Result == null)
             {
-                return NotFound(new ResponseModel<TaskDto>
-                {
-                    Success = false,
-                    Error = new Error(ErrorCodes.NotFound, "Task not found.")
-                });
+                //return NotFound(new ResponseModel<TaskDto>
+                //{
+                //    Success = false,
+                //    Error = new Error(ErrorCodes.NotFound, "Task not found.")
+                //}); //error handler middleware ile handle edilecek
             }
             return Ok(response);
 
@@ -131,12 +131,12 @@ namespace TaskAPI.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => taskService.DeleteAsync(id), logger, HttpContext, "Task Delete");
+            var response = await OperationExecutor.ExecuteAsync(async () => await taskService.DeleteAsync(id), logger, HttpContext, "Task Delete");
             if (!response.Success)
             {
                 return StatusCode(500, response); //error = new error(errorcodes.internalservererror,"test")
             }
-            if (response.Result == null)
+            if (!response.Result)
             {
                 return NotFound(new ResponseModel<TaskDto>
                 {
@@ -144,6 +144,7 @@ namespace TaskAPI.API.Controllers
                     Error = new Error(ErrorCodes.NotFound, "Task couldn't be Deleted")
                 });
             }
+#pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             return Ok(response);
             
             //var result = await taskService.DeleteAsync(id);

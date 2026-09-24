@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using TaskAPI.Entities.Interfaces;
 using TaskAPI.Infrastructure.Data;
 
@@ -8,14 +9,14 @@ namespace TaskAPI.Infrastructure.Repositories
 { 
     public class UserRepository(AppDbContext context) : IUserRepository
     {
-        public void Add(TaskAPI.Entities.Entity.User user)
+        public async Task AddAsync(TaskAPI.Entities.Entity.User user)
         {
             context.Users.Add(user);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
-        public TaskAPI.Entities.Entity.User? GetByUsername(string username)
+        public async Task<Entities.Entity.User?> GetByUsernameAsync(string username)
         {
-            return context.Users.FirstOrDefault(u => u.Username == username);
+            return await context.Users.FirstOrDefaultAsync(u => u.Username == username);
         }
     }
 }

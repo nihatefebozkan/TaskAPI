@@ -7,7 +7,7 @@ namespace TaskAPI.Entities.Interfaces
 {
     public interface IUserRepository
     {
-        User? GetByUsername(string username);
-        void Add(User user);
+        Task<User?> GetByUsernameAsync(string username);
+        System.Threading.Tasks.Task AddAsync(User user);
     }
 }

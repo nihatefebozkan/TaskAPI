@@ -7,7 +7,7 @@ namespace TaskAPI.Entities.Interfaces
 {
     public interface IAuthService
     {
-        bool Register(RegisterDto registerDto);
+        Task<bool> RegisterAsync(RegisterDto registerDto);
 
     }
 }
