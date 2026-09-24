@@ -144,7 +144,7 @@ namespace TaskAPI.API.Controllers
                     Error = new Error(ErrorCodes.NotFound, "Task couldn't be Deleted")
                 });
             }
-#pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
+
             return Ok(response);
             
             //var result = await taskService.DeleteAsync(id);

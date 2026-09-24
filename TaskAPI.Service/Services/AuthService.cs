@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Validation;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using TaskAPI.Core.Helpers;
 using TaskAPI.Entities.Dtos;
 using TaskAPI.Entities.Interfaces;
+using TaskAPI.Entities.Enums;
 
 namespace TaskAPI.Service.Services
 {
@@ -23,6 +26,17 @@ namespace TaskAPI.Service.Services
                 return true; // User registered successfully
 
             }
+        }
+        public async Task<LoginResultEnum> LoginAsync(LoginDto loginDto)
+        {
+            var user = await userRepository.GetByUsernameAsync(loginDto.Username);
+            if (user == null)
+            {
+                return LoginResultEnum.UserNotFound; // User not found
+            }
+
+            var isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash); // Verify the password using BCrypt
+            return isPasswordValid ? LoginResultEnum.Successfuly : LoginResultEnum.InvalidPassword; // Return the appropriate result
         }
     }
 }
