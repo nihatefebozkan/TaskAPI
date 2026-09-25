@@ -11,5 +11,8 @@ namespace TaskAPI.Core.Helpers
         public const string BadRequest = "BAD_REQUEST";
         public const string NotFound = "NOT_FOUND";
         public const string Unauthorized = "UNAUTHORIZED";
+        public const string InvalidPassword = "INVALID_PASSWORD";
+        public const string Conflict = "CONFLICT";
+
     }
 }

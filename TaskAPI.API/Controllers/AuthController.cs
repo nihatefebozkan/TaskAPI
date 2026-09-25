@@ -12,7 +12,7 @@ namespace TaskAPI.API.Controllers
     [Route("api/[controller]")]
     public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
     {
-        [HttpPost]
+        [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
             var response = await OperationExecutor.ExecuteAsync(async () => await authService.RegisterAsync(registerDto), logger, HttpContext, "Register");
@@ -20,19 +20,18 @@ namespace TaskAPI.API.Controllers
             {
                 return BadRequest(response);
             }
-            if (response.Result == null)
+            if (!response.Result)
             {
-                return BadRequest(new ResponseModel<RegisterDto>
+                return Conflict(new ResponseModel<RegisterDto>
                 {
-                    Success = false,
-                    Error = new Error(ErrorCodes.BadRequest, "Failed to register.")
+                    Error = new Error(ErrorCodes.Conflict, "Username already exists.")
                 });
             }
 
             return Ok(response);
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             var response = await OperationExecutor.ExecuteAsync(async () => await authService.LoginAsync(loginDto), logger, HttpContext, "Login");
@@ -40,12 +39,20 @@ namespace TaskAPI.API.Controllers
             {
                 return BadRequest(response);
             }
-            if (response.Result.Equals(LoginResultEnum.UserNotFound) || response.Result.Equals(LoginResultEnum.InvalidPassword))
+            if (response.Result.Equals(LoginResultEnum.UserNotFound))
+            {
+                return NotFound(new ResponseModel<LoginDto>
+                {
+                    Success = false,
+                    Error = new Error(ErrorCodes.NotFound, "User not found.")
+                });
+            }
+            if (response.Result.Equals(LoginResultEnum.InvalidPassword))
             {
                 return Unauthorized(new ResponseModel<LoginDto>
                 {
                     Success = false,
-                    Error = new Error(ErrorCodes.Unauthorized, "Failed to login.")
+                    Error = new Error(ErrorCodes.InvalidPassword, "Invalid password.")
                 });
             }
             return Ok(response);

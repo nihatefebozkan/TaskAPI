@@ -9,7 +9,7 @@ using TaskAPI.Entities.Enums;
 
 namespace TaskAPI.Service.Services
 {
-    public class AuthService(IUserRepository userRepository) : IAuthService //dependency injection for IUserRepository
+    public class LoginService(IUserRepository userRepository) : IAuthService //dependency injection for IUserRepository
     {
         public async Task<bool> RegisterAsync(RegisterDto registerDto)
         {
