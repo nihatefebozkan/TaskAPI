@@ -39,7 +39,7 @@ namespace TaskAPI.API.Controllers
             {
                 return BadRequest(response);
             }
-            if (response.Result.Equals(LoginResultEnum.UserNotFound))
+            if (response.Result!.Result == LoginResultEnum.UserNotFound)
             {
                 return NotFound(new ResponseModel<LoginDto>
                 {
@@ -47,7 +47,7 @@ namespace TaskAPI.API.Controllers
                     Error = new Error(ErrorCodes.NotFound, "User not found.")
                 });
             }
-            if (response.Result.Equals(LoginResultEnum.InvalidPassword))
+            if (response.Result.Result == LoginResultEnum.InvalidPassword)
             {
                 return Unauthorized(new ResponseModel<LoginDto>
                 {

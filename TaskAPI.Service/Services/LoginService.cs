@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Validation;
+using System.IdentityModel.Tokens.Jwt;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ using TaskAPI.Entities.Enums;
 
 namespace TaskAPI.Service.Services
 {
-    public class LoginService(IUserRepository userRepository) : IAuthService //dependency injection for IUserRepository
+    public class LoginService(IUserRepository userRepository,ITokenService tokenService) : IAuthService //dependency injection for IUserRepository
     {
         public async Task<bool> RegisterAsync(RegisterDto registerDto)
         {
@@ -27,16 +28,26 @@ namespace TaskAPI.Service.Services
 
             }
         }
-        public async Task<LoginResultEnum> LoginAsync(LoginDto loginDto)
+        public async Task<LoginResponseDto> LoginAsync(LoginDto loginDto)
         {
             var user = await userRepository.GetByUsernameAsync(loginDto.Username);
             if (user == null)
             {
-                return LoginResultEnum.UserNotFound; // User not found
+                return new LoginResponseDto { Result = LoginResultEnum.UserNotFound }; // User not found
             }
 
             var isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash); // Verify the password using BCrypt
-            return isPasswordValid ? LoginResultEnum.Successfuly : LoginResultEnum.InvalidPassword; // Return the appropriate result
+            if (!isPasswordValid)
+            {
+                return new LoginResponseDto { Result = LoginResultEnum.InvalidPassword };
+            }
+            var token = tokenService.CreateToken(user);
+            return new LoginResponseDto
+            {
+                Result = LoginResultEnum.Successfuly,
+                Token = token,
+                Username = user.Username,
+            };
         }
     }
 }
