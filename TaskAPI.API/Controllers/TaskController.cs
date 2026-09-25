@@ -5,11 +5,13 @@ using TaskAPI.Entities.Entity;
 using TaskAPI.Service.Services;
 using TaskAPI.Core.Helpers;
 using TaskAPI.Core.Middleware;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class TaskController(ITaskService taskService, ILogger<TaskController> logger) : ControllerBase
     {
         [HttpGet("{id}")]
@@ -18,16 +20,13 @@ namespace TaskAPI.API.Controllers
             var response = await OperationExecutor.ExecuteAsync(async () => await taskService.GetAsync(id), logger, HttpContext, "Get Task");
             if (!response.Success)
             {
-                return StatusCode(500, response);
-            }
-            if (response.Result == null)
-            {
-                //return NotFound(new ResponseModel<TaskDto>
-                //{
-                //    Success = false,
-                //    Error = new Error(ErrorCodes.NotFound, "Task not found.")
-                //}); //error handler middleware ile handle edilecek
-            }
+                return response.Error!.ErrorCode switch
+                {
+                    ErrorCodes.NotFound => NotFound(response),
+                    ErrorCodes.BadRequest => BadRequest(response),
+                    _ => StatusCode(500, response)
+                };
+            } //error handler middleware ile handle edilecek
             return Ok(response);
 
             //var task = await taskService.GetAsync(id);

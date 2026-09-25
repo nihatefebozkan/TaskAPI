@@ -55,6 +55,14 @@ namespace TaskAPI.API.Controllers
                     Error = new Error(ErrorCodes.InvalidPassword, "Invalid password.")
                 });
             }
+            Response.Cookies.Append("token", response.Result.Token!, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(60)
+            });
+
             return Ok(response);
         }
     }

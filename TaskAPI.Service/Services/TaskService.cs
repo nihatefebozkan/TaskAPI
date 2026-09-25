@@ -5,6 +5,7 @@ using System.Text;
 using TaskAPI.Entities.Dtos;
 using TaskAPI.Entities.Interfaces;
 using TaskAPI.Entities.Entity;
+using TaskAPI.Core.Helpers;
 
 namespace TaskAPI.Service.Services
 {
@@ -64,7 +65,7 @@ namespace TaskAPI.Service.Services
             var task = await _taskRepository.GetAsync(id);
             if (task == null)
             {
-                return null;
+                throw new NotFoundException("Task Not Found");
             }
             return new TaskDto
             {
