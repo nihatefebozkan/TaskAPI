@@ -10,8 +10,9 @@ using TaskAPI.Entities.Enums;
 
 namespace TaskAPI.Service.Services
 {
-    public class LoginService(IUserRepository userRepository) : IAuthService //dependency injection for IUserRepository
-    { 
+    public class LoginService(IUserRepository userRepository, IPasswordHasher passwordHasher) : IAuthService //dependency injection for IUserRepository
+    {
+        private const string DummyHash = "v1.600000.AAAAAAAAAAAAAAAAAAAAAA==.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
         public async Task<bool> Register(RegisterDto registerDto)
         {
             var existingUser = await userRepository.GetByUsernameAsync(registerDto.Username);
@@ -20,7 +21,7 @@ namespace TaskAPI.Service.Services
                 return false; // User already exists
             }
 
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password); // Hash the password using BCrypt
+            var passwordHash = passwordHasher.Hash(registerDto.Password);
             var user = new TaskAPI.Entities.Entity.User(registerDto.Username, passwordHash, DateTime.UtcNow);
             {
                 await userRepository.AddAsync(user);
@@ -33,10 +34,11 @@ namespace TaskAPI.Service.Services
             var user = await userRepository.GetByUsernameAsync(loginDto.Username);
             if (user == null)
             {
-                return new LoginResponseDto { Result = LoginResultEnum.UserNotFound }; // User not found
+                passwordHasher.Verify(loginDto.Password, DummyHash);
+                return new LoginResponseDto { Result = LoginResultEnum.UserNotFound };
             }
 
-            var isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash); // Verify the password using BCrypt
+            var isPasswordValid = passwordHasher.Verify(loginDto.Password, user.PasswordHash);
             if (!isPasswordValid)
             {
                 return new LoginResponseDto { Result = LoginResultEnum.InvalidPassword };

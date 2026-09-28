@@ -8,6 +8,7 @@ using TaskAPI.Core.Middleware;
 using TaskAPI.Entities.Interfaces;
 using TaskAPI.Infrastructure.Data; //veritabanı bağlantısı için gerekli olan DbContext'i içe aktarır.
 using TaskAPI.Infrastructure.Repositories; //veritabanı işlemleri için gerekli olan repository sınıfını içe aktarır.
+using TaskAPI.Infrastructure.Security;
 using TaskAPI.Service.Services;
 
 public partial class Program
@@ -27,7 +28,13 @@ public partial class Program
         builder.Services.AddScoped<ITaskService, TaskService>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IAuthService, LoginService>();
+        builder.Services.AddSingleton<IPepperKeyProvider, TpmPepperKeyProvider>();
+        builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
         var app = builder.Build();
+        using (var scope = app.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<IPepperKeyProvider>().GetKey();
+        }
         app.UseMiddleware<ErrorHandler>();
         // Configure the HTTP request pipeline.
 

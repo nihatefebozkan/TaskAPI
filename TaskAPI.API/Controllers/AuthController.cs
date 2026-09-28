@@ -38,25 +38,25 @@ namespace TaskAPI.API.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            //await OperationExecutor.ExecuteAsync(async () => {
-
-
-            //}, logger, HttpContext, "Login");
-
-
-            var response = await authService.Login(loginDto);
-
-            if (response.Result == LoginResultEnum.InvalidPassword)
+            var response = await OperationExecutor.ExecuteAsync(async () => await authService.Login(loginDto), logger, HttpContext, "Login");
+            if (!response.Success)
+            {
+                return response.Error!.ErrorCode switch
+                {
+                    ErrorCodes.NotFound => NotFound(response),
+                    ErrorCodes.BadRequest => BadRequest(response),
+                    _ => StatusCode(500, response)
+                };
+            }
+            if (response.Result!.Result != LoginResultEnum.Successfuly)
             {
                 return Unauthorized(new ResponseModel<LoginDto>
                 {
                     Success = false,
-                    Error = new Error(ErrorCodes.InvalidPassword, "Invalid password.")
+                    Error = new Error(ErrorCodes.Unauthorized, "Kullanıcı adı veya şifre hatalı.")
                 });
             }
-
             return Ok(response);
-
         }
     }
 }
