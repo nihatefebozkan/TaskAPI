@@ -178,7 +178,7 @@ flowchart LR
 ### Saklama formatı
 
 ```
-v1.600000.Nf3kL9vQz8xY2mP4rT6uWe==.8hJ1cK5bD7fG0aS3dF6gH9jK2lM4nO5pQ7rS=
+v1.600000.XYZxyzABCabcxxxx==.XYZxyzABCabcxxxx=
 │  │      │                        │
 │  │      └ salt (16 byte, Base64) └ hash (32 byte, Base64)
 │  └ tur sayısı
