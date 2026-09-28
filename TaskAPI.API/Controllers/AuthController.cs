@@ -15,10 +15,15 @@ namespace TaskAPI.API.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await authService.RegisterAsync(registerDto), logger, HttpContext, "Register");
+            var response = await OperationExecutor.ExecuteAsync(async () => await authService.Register(registerDto), logger, HttpContext, "Register");
             if (!response.Success)
             {
-                return BadRequest(response);
+                return response.Error!.ErrorCode switch
+                {
+                    ErrorCodes.NotFound => NotFound(response),
+                    ErrorCodes.BadRequest => BadRequest(response),
+                    _ => StatusCode(500, response)
+                };
             }
             if (!response.Result)
             {
@@ -27,27 +32,21 @@ namespace TaskAPI.API.Controllers
                     Error = new Error(ErrorCodes.Conflict, "Username already exists.")
                 });
             }
-
             return Ok(response);
         }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await authService.LoginAsync(loginDto), logger, HttpContext, "Login");
-            if (!response.Success)
-            {
-                return BadRequest(response);
-            }
-            if (response.Result!.Result == LoginResultEnum.UserNotFound)
-            {
-                return NotFound(new ResponseModel<LoginDto>
-                {
-                    Success = false,
-                    Error = new Error(ErrorCodes.NotFound, "User not found.")
-                });
-            }
-            if (response.Result.Result == LoginResultEnum.InvalidPassword)
+            //await OperationExecutor.ExecuteAsync(async () => {
+
+
+            //}, logger, HttpContext, "Login");
+
+
+            var response = await authService.Login(loginDto);
+
+            if (response.Result == LoginResultEnum.InvalidPassword)
             {
                 return Unauthorized(new ResponseModel<LoginDto>
                 {
@@ -55,15 +54,9 @@ namespace TaskAPI.API.Controllers
                     Error = new Error(ErrorCodes.InvalidPassword, "Invalid password.")
                 });
             }
-            Response.Cookies.Append("token", response.Result.Token!, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddMinutes(60)
-            });
 
             return Ok(response);
+
         }
     }
 }

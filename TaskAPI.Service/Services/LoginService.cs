@@ -10,9 +10,9 @@ using TaskAPI.Entities.Enums;
 
 namespace TaskAPI.Service.Services
 {
-    public class LoginService(IUserRepository userRepository,ITokenService tokenService) : IAuthService //dependency injection for IUserRepository
-    {
-        public async Task<bool> RegisterAsync(RegisterDto registerDto)
+    public class LoginService(IUserRepository userRepository) : IAuthService //dependency injection for IUserRepository
+    { 
+        public async Task<bool> Register(RegisterDto registerDto)
         {
             var existingUser = await userRepository.GetByUsernameAsync(registerDto.Username);
             if (existingUser != null)
@@ -28,7 +28,7 @@ namespace TaskAPI.Service.Services
 
             }
         }
-        public async Task<LoginResponseDto> LoginAsync(LoginDto loginDto)
+        public async Task<LoginResponseDto> Login(LoginDto loginDto) //aut
         {
             var user = await userRepository.GetByUsernameAsync(loginDto.Username);
             if (user == null)
@@ -41,11 +41,10 @@ namespace TaskAPI.Service.Services
             {
                 return new LoginResponseDto { Result = LoginResultEnum.InvalidPassword };
             }
-            var token = tokenService.CreateToken(user);
+
             return new LoginResponseDto
             {
                 Result = LoginResultEnum.Successfuly,
-                Token = token,
                 Username = user.Username,
             };
         }

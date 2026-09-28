@@ -18,7 +18,7 @@ namespace TaskAPI.Service.Services
         }
         public async Task<TaskDto> AddAsync(TaskCreateDto dto)
         {
-            var task = new TaskAPI.Entities.Entity.Task(dto.Title, dto.Description, DateTime.UtcNow, dto.DueDate);
+            var task = new TaskAPI.Entities.Entity.Task(dto.Title,  dto.Description, DateTime.UtcNow, dto.DueDate);
 
             await _taskRepository.AddAsync(task);
             return new TaskDto

@@ -32,6 +32,7 @@ namespace TaskAPI.Core.Middleware
                 var response = new ResponseModel<object> { Success = false, Result = (object?)null, Error = error };
                 await context.Response.WriteAsJsonAsync(response);
             }
+
         }
     }
 }

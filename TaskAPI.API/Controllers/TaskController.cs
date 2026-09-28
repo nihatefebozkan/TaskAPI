@@ -11,7 +11,6 @@ namespace TaskAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class TaskController(ITaskService taskService, ILogger<TaskController> logger) : ControllerBase
     {
         [HttpGet("{id}")]
@@ -20,7 +19,7 @@ namespace TaskAPI.API.Controllers
             var response = await OperationExecutor.ExecuteAsync(async () => await taskService.GetAsync(id), logger, HttpContext, "Get Task");
             if (!response.Success)
             {
-                return response.Error!.ErrorCode switch
+                return response.Error!.ErrorCode switch // mapper !!
                 {
                     ErrorCodes.NotFound => NotFound(response),
                     ErrorCodes.BadRequest => BadRequest(response),
