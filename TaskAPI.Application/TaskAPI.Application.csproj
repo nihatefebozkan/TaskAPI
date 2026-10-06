@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TaskAPI.Core\TaskAPI.Core.csproj" />
-    <ProjectReference Include="..\TaskAPI.Entities\TaskAPI.Domain.csproj" />
+    <ProjectReference Include="..\TaskAPI.Domain\TaskAPI.Domain.csproj" />
   </ItemGroup>
 
 </Project>

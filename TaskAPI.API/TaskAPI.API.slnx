@@ -1,8 +1,8 @@
 <Solution>
   <Project Path="../TaskAPI.Core/TaskAPI.Core.csproj" />
-  <Project Path="../TaskAPI.Entities/TaskAPI.Domain.csproj" Id="e9596619-1ee0-4537-b0fc-5577f90eaece" />
+  <Project Path="../TaskAPI.Domain/TaskAPI.Domain.csproj" Id="e9596619-1ee0-4537-b0fc-5577f90eaece" />
   <Project Path="../TaskAPI.Infrastructure/TaskAPI.Infrastructure.csproj" />
-  <Project Path="../TaskAPI.Service/TaskAPI.Application.csproj" />
+  <Project Path="../TaskAPI.Application/TaskAPI.Application.csproj" />
   <Project Path="../TaskAPI.UI/TaskAPI.UI.csproj" />
   <Project Path="TaskAPI.API.csproj" />
 </Solution>

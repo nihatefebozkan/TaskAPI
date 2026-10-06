@@ -19,9 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TaskAPI.Entities\TaskAPI.Domain.csproj" />
+    <ProjectReference Include="..\TaskAPI.Domain\TaskAPI.Domain.csproj" />
     <ProjectReference Include="..\TaskAPI.Infrastructure\TaskAPI.Infrastructure.csproj" />
-    <ProjectReference Include="..\TaskAPI.Service\TaskAPI.Application.csproj" />
+    <ProjectReference Include="..\TaskAPI.Application\TaskAPI.Application.csproj" />
     <ProjectReference Include="..\TaskAPI.UI\TaskAPI.UI.csproj" />
   </ItemGroup>
 
