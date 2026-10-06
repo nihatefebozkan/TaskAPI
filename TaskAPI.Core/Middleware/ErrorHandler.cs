@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TaskAPI.Core.Helpers;
+using TaskAPI.Core.Models;
+
 
 namespace TaskAPI.Core.Middleware
 {
@@ -20,7 +22,8 @@ namespace TaskAPI.Core.Middleware
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest; // Set the response status code to 400 Bad Request   
                 context.Response.ContentType = "application/json"; // Set the response content type to JSON
-                var error = new Error(ErrorCodes.BadRequest, ex.Message);
+                var code = ex.ParamName == "task" ? ErrorCodes.InvalidTaskFormat : ErrorCodes.BadRequest;
+                var error = new ErrorModel(code, ex.Message);
                 var response = new ResponseModel<object> { Success = false, Result = (object?)null, Error = error };
                 await context.Response.WriteAsJsonAsync(response);
             }
@@ -28,7 +31,7 @@ namespace TaskAPI.Core.Middleware
             {
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError; // Set the response status code to 500 Internal Server Error
                 context.Response.ContentType = "application/json"; // Set the response content type to JSON
-                var error = new Error(ErrorCodes.InternalServerError, "An unexpected error occurred.");
+                var error = new ErrorModel(ErrorCodes.InternalServerError, "An unexpected error occurred.");
                 var response = new ResponseModel<object> { Success = false, Result = (object?)null, Error = error };
                 await context.Response.WriteAsJsonAsync(response);
             }

@@ -25,7 +25,7 @@ namespace TaskAPI.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TaskAPI.Entities.Entity.Task", b =>
+            modelBuilder.Entity("TaskAPI.Domain.Entity.Task", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

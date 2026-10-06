@@ -1,0 +1,98 @@
+@page "/login"
+@using System.Net
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Giriş yap · TaskAPI</PageTitle>
+
+<div class="wrap auth">
+    <div class="auth-card">
+        <a href="/" class="brand"><span class="mark" aria-hidden="true">{ }</span>TaskAPI</a>
+
+        <h1>Giriş yap</h1>
+        <p class="sub">Görevlerine ulaşmak için hesabına giriş yap.</p>
+
+        <form class="auth-form" @onsubmit="Submit" @onsubmit:preventDefault>
+            <label class="field" for="login-username">
+                Kullanıcı adı
+                <input type="text" id="login-username" autocomplete="username" spellcheck="false"
+                       @bind="username" />
+            </label>
+
+            <label class="field" for="login-password">
+                Şifre
+                <span class="pw">
+                    <input type="@(showPassword ? "text" : "password")" id="login-password"
+                           autocomplete="current-password" @bind="password" />
+                    <button type="button" aria-pressed="@(showPassword ? "true" : "false")"
+                            @onclick="() => showPassword = !showPassword">
+                        @(showPassword ? "Gizle" : "Göster")
+                    </button>
+                </span>
+            </label>
+
+            @if (errorMessage is not null)
+            {
+                <p class="err" role="alert">@errorMessage</p>
+            }
+
+            @if (successMessage is not null)
+            {
+                <p role="status">@successMessage</p>
+            }
+
+            <button type="submit" class="btn" disabled="@isLoading">
+                @(isLoading ? "Giriş yapılıyor…" : "Giriş yap")
+            </button>
+        </form>
+
+        <p class="switch">Hesabın yok mu? <a href="register">Kayıt ol</a></p>
+    </div>
+</div>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private bool showPassword;
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
+
+    private async Task Submit()
+    {
+        errorMessage = null;
+        successMessage = null;
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Kullanıcı adı ve şifre boş olamaz.";
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/Auth/Login", new { username, password });
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/home");
+                return;
+            }
+
+            errorMessage = response.StatusCode == HttpStatusCode.Unauthorized
+                ? "Kullanıcı adı veya şifre hatalı."
+                : "Giriş sırasında bir hata oluştu.";
+            password = "";
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Sunucuya ulaşılamadı.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.12">
       <PrivateAssets>all</PrivateAssets>
@@ -18,8 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TaskAPI.Entities\TaskAPI.Domain.csproj" />
     <ProjectReference Include="..\TaskAPI.Infrastructure\TaskAPI.Infrastructure.csproj" />
-    <ProjectReference Include="..\TaskAPI.Service\TaskAPI.Service.csproj" />
+    <ProjectReference Include="..\TaskAPI.Service\TaskAPI.Application.csproj" />
+    <ProjectReference Include="..\TaskAPI.UI\TaskAPI.UI.csproj" />
   </ItemGroup>
 
 </Project>

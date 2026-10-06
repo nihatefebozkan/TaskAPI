@@ -1,0 +1,90 @@
+@page "/register"
+@using System.Net
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Kayıt ol · TaskAPI</PageTitle>
+
+<div class="wrap auth">
+    <div class="auth-card">
+        <a href="/" class="brand"><span class="mark" aria-hidden="true">{ }</span>TaskAPI</a>
+
+        <h1>Hesap oluştur</h1>
+        <p class="sub">Bir kullanıcı adı ve şifre seç, hemen başla.</p>
+
+        <form class="auth-form" @onsubmit="Submit" @onsubmit:preventDefault>
+            <label class="field" for="register-username">
+                Kullanıcı adı
+                <input type="text" id="register-username" autocomplete="username" spellcheck="false"
+                       @bind="username" />
+            </label>
+
+            <label class="field" for="register-password">
+                Şifre
+                <span class="pw">
+                    <input type="@(showPassword ? "text" : "password")" id="register-password"
+                           autocomplete="new-password" @bind="password" />
+                    <button type="button" aria-pressed="@(showPassword ? "true" : "false")"
+                            @onclick="() => showPassword = !showPassword">
+                        @(showPassword ? "Gizle" : "Göster")
+                    </button>
+                </span>
+            </label>
+
+            @if (errorMessage is not null)
+            {
+                <p class="err" role="alert">@errorMessage</p>
+            }
+
+            <button type="submit" class="btn" disabled="@isLoading">
+                @(isLoading ? "Kaydediliyor…" : "Kayıt ol")
+            </button>
+        </form>
+
+        <p class="switch">Zaten hesabın var mı? <a href="login">Giriş yap</a></p>
+    </div>
+</div>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private bool showPassword;
+    private string? errorMessage;
+    private bool isLoading;
+
+    private async Task Submit()
+    {
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Kullanıcı adı ve şifre boş olamaz.";
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/Auth/Register", new { username, password });
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            errorMessage = response.StatusCode == HttpStatusCode.Conflict
+                ? "Bu kullanıcı adı zaten alınmış."
+                : "Kayıt sırasında bir hata oluştu.";
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Sunucuya ulaşılamadı.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

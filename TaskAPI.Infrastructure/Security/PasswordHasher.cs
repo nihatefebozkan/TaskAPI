@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using TaskAPI.Entities.Interfaces;
+using TaskAPI.Application.Interfaces;
 
 namespace TaskAPI.Infrastructure.Security
 {
@@ -50,10 +50,10 @@ namespace TaskAPI.Infrastructure.Security
 
             return CryptographicOperations.FixedTimeEquals(actualHash, expectedHash);
         }
-        private byte[] PepperPassword(string password)                   // ← YENİ
+        private byte[] PepperPassword(string password)      
         {
             return HMACSHA256.HashData(
-                pepperKeyProvider.GetKey(),
+                pepperKeyProvider.GetKey("key"),
                 Encoding.UTF8.GetBytes(password));
         }
     }

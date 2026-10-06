@@ -1,104 +1,103 @@
-﻿using System;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TaskAPI.Entities.Dtos;
-using TaskAPI.Entities.Interfaces;
-using TaskAPI.Entities.Entity;
+using TaskAPI.Application.Dtos;
+using TaskAPI.Application.Interfaces;
 using TaskAPI.Core.Helpers;
+using TaskAPI.Domain.Entity;
 
-namespace TaskAPI.Service.Services
+namespace TaskAPI.Application.Services
 {
-    public class TaskService : ITaskService
+    public class TaskService(ITaskRepository taskRepository, IMapper mapper, ILogger<TaskService> logger, IHttpContextAccessor httpContextAccessor) : ITaskService
     {
-        private readonly ITaskRepository _taskRepository;
-        public TaskService(ITaskRepository taskRepository)
+        public async Task<TaskDto> Add(TaskDto dto)
         {
-            _taskRepository = taskRepository;
-        }
-        public async Task<TaskDto> AddAsync(TaskCreateDto dto)
-        {
-            var task = new TaskAPI.Entities.Entity.Task(dto.Title,  dto.Description, DateTime.UtcNow, dto.DueDate);
+            return await MethodExecutor.ExecuteAsync<TaskDto>(
+                async () =>
+                {
+                    if (string.IsNullOrWhiteSpace(dto.Title))     
+                        throw new ArgumentException("Title cannot be empty.", "task");
+                    if (dto.DueDate < DateTime.UtcNow)
+                        throw new ArgumentException("Due date cannot be in the past.", "task");
 
-            await _taskRepository.AddAsync(task);
-            return new TaskDto
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                CreatedAt = task.CreatedAt,
-                DueDate = task.DueDate,
-                IsCompleted = task.isOverdue(),
-            };
+                    var task = mapper.Map<TaskAPI.Domain.Entity.Task>(dto) ?? throw new ArgumentException("Task could not be mapped to domain entity");
+
+                    await taskRepository.Add(task);
+
+                    return mapper.Map<TaskDto>(task) ?? throw new ArgumentException("Task could not be mapped to DTO");
+
+                }, logger, httpContextAccessor, nameof(Add));
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<List<TaskDto>> GetAll()
         {
-            var task = await _taskRepository.GetAsync(id);
-            if (task == null)
-            {
-                return false;
-            }
-            await _taskRepository.DeleteAsync(task);
-            return true;
+            return await MethodExecutor.ExecuteAsync<List<TaskDto>>(
+                async () =>
+                {
+                    var tasks = await taskRepository.GetAll() ?? [];
+
+                    return mapper.Map<List<TaskDto>>(tasks) ?? throw new ArgumentException("Tasks could not be mapped");
+                },
+                logger,
+                httpContextAccessor,
+                nameof(GetAll));
         }
 
-
-
-        public async Task<List<TaskDto>> GetAllAsync()
+        public async Task<TaskDto?> Get(int id)
         {
-            var tasks = await _taskRepository.GetAllAsync();
-            return tasks.Select(task => new TaskDto
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                CreatedAt = task.CreatedAt,
-                DueDate = task.DueDate,
-                IsCompleted = task.isOverdue(),
-            }).ToList();
+            return await MethodExecutor.ExecuteAsync<TaskDto?>(
+                async () =>
+                {
+                    var task = await taskRepository.Get(id) ?? throw new ArgumentException("Task not found.");
+
+                    return mapper.Map<TaskDto>(task) ?? throw new ArgumentException("Task could not be MAPPED");
+                },
+                logger,
+                httpContextAccessor,
+                nameof(Get));
         }
 
-        public async Task<TaskDto> GetAsync(int id)
+        public async Task<TaskDto> Update(int id, TaskDto dto)
         {
-            //throw new Exception("Test Hatası");
-            var task = await _taskRepository.GetAsync(id);
-            if (task == null)
-            {
-                throw new NotFoundException("Task Not Found");
-            }
-            return new TaskDto
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                CreatedAt = task.CreatedAt,
-                DueDate = task.DueDate,
-                IsCompleted = task.isOverdue(),
-            };
-        }
+            return await MethodExecutor.ExecuteAsync<TaskDto>(
+                async () =>
+                {
+                    var task = await taskRepository.Get(id) ?? throw new ArgumentException("Task not found.");
 
-        public async Task<TaskDto> UpdateAsync(int id, TaskUpdateDto dto)
+                    if (dto.DueDate < DateTime.UtcNow)
+                        throw new ArgumentException("Due date cannot be in the past.", "task");
+                    
+                    task.DueDate = dto.DueDate;
+
+                    await taskRepository.Update(task);
+
+                    return mapper.Map<TaskDto>(task) ?? throw new ArgumentException("Task could not be mapped");
+                },
+                logger,
+                httpContextAccessor,
+                nameof(Update));
+        }
+        public async Task<bool> Delete(int id)
         {
-            var task = await _taskRepository.GetAsync(id);
-            if (task == null)
-            {
-                return null;
-            }
-            //var task = new Entities.Entity.Task(dto.Title, dto.Description, task.CreatedAt, dto.DueDate);
-            task.Title = dto.Title;
-            task.Description = dto.Description;
-            task.DueDate = dto.DueDate;
-            await _taskRepository.UpdateAsync(task);
-            return new TaskDto
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                CreatedAt = task.CreatedAt,
-                DueDate = task.DueDate,
-                IsCompleted = task.isOverdue(),
-            };
+            return await MethodExecutor.ExecuteAsync<bool>(
+                async () =>
+                {
+                    var task = await taskRepository.Get(id) ?? throw new ArgumentException("Task not found");
+
+                    task.DeletedAt = DateTimeOffset.UtcNow;
+
+                    await taskRepository.Delete(task);
+
+                    return true;
+                },
+                logger,
+                httpContextAccessor,
+                nameof(Delete));
         }
     }
 }

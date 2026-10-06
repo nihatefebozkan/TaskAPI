@@ -1,204 +1,88 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TaskAPI.Entities.Interfaces;
-using TaskAPI.Entities.Dtos;
-using TaskAPI.Entities.Entity;
-using TaskAPI.Service.Services;
+using TaskAPI.Domain.Entity;
+using TaskAPI.Application.Services;
 using TaskAPI.Core.Helpers;
 using TaskAPI.Core.Middleware;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using TaskAPI.Application.Dtos;
+using TaskAPI.Application.Interfaces;
+using TaskAPI.Core.Models;
 
 namespace TaskAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TaskController(ITaskService taskService, ILogger<TaskController> logger) : ControllerBase
+    public class TaskController(ITaskService taskService, ILogger<TaskController> logger,IHttpContextAccessor httpContextAccessor) : ControllerBase
     {
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(int id) //dto gidecek
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await taskService.GetAsync(id), logger, HttpContext, "Get Task");
-            if (!response.Success)
-            {
-                return response.Error!.ErrorCode switch // mapper !!
+            return await MethodExecutor.ExecuteAsync<IActionResult>(
+                async () =>
                 {
-                    ErrorCodes.NotFound => NotFound(response),
-                    ErrorCodes.BadRequest => BadRequest(response),
-                    _ => StatusCode(500, response)
-                };
-            } //error handler middleware ile handle edilecek
-            return Ok(response);
+                    var task = await taskService.Get(id) ?? throw new ArgumentException("Task not found.");
+                    
+                    return Ok(task);
 
-            //var task = await taskService.GetAsync(id);
-            //if (task == null)
-            //{
-            //    return NotFound(new ResponseModel<TaskDto>
-            //    {
-            //        Success = false,
-            //        Error = new Error(ErrorCodes.NotFound, "Task not found.")
-            //    });
-            //}
-            //else
-            //{
-            //    var response = new ResponseModel<TaskDto>
-            //    {
-            //        Success = true,
-            //        Result = task
-            //    };
-            //    return Ok(response);
-            //}
-        }
+                },logger, httpContextAccessor, nameof(Get));
+            }
 
         [HttpPost]
-        public async Task<IActionResult> Create(TaskCreateDto dto)
+        public async Task<IActionResult> Create(TaskDto dto)
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await taskService.AddAsync(dto), logger, HttpContext, "Create Task");
-            if (!response.Success)
-            {
-                return StatusCode(500, response);
-            }
-            if (response.Result == null)
-            {
-                return NotFound(new ResponseModel<TaskCreateDto>
+            return await MethodExecutor.ExecuteAsync(
+                async() =>
                 {
-                    Success = false,
-                    Error = new Error(ErrorCodes.NotFound, "Task couldn't be Created")
-                });
-            }
+                    var task = await taskService.Add(dto) ?? throw new ArgumentException("Failed to create task.");
+                    
+                    return Ok(task);
 
-            return Ok(response);
-
-            //var result = await taskService.AddAsync(dto);
-            //if (result == null)
-            //{           
-            //    return BadRequest(new ResponseModel<TaskCreateDto>
-            //    {
-            //        Success = false,
-            //        Error = new Error(ErrorCodes.BadRequest, "Invalid task data.")
-            //    });
-            //}
-            //else
-            //{
-            //    var response = new ResponseModel<TaskDto>
-            //    {
-            //        Success = true,
-            //        Result = result
-            //    };
-            //    return CreatedAtAction(nameof(Get), new { id = result.Id }, response);
-            //}
+                },logger, httpContextAccessor, nameof(Create));
+            
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, TaskUpdateDto dto)
+        public async Task<IActionResult> Update(int id, TaskDto dto)
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await taskService.UpdateAsync(id, dto), logger, HttpContext, "Update Task"); //response niye tanımladın dedi
-            if (!response.Success)
-            {
-                return StatusCode(500, "response");
-            }
-            if (response.Result == null)
-            {
-                return NotFound(new ResponseModel<TaskUpdateDto>
+            return await MethodExecutor.ExecuteAsync(
+                async () =>
                 {
-                    Success = false,
-                    Error = new Error(ErrorCodes.NotFound, "The task could not be updated.")
-                });
-            }
-            return Ok(response);
+                    var task = await taskService.Update(id, dto) ?? throw new ArgumentException("Task not found.");
+                   
+                    return Ok(task);
 
-
-            //var result = await taskService.UpdateAsync(id, dto);
-            //if (result == null)
-            //{
-            //    return NotFound(new ResponseModel<TaskUpdateDto>
-            //    {
-            //        Success = false,
-            //        Error = new Error(ErrorCodes.NotFound, "Task not found.")
-            //    });
-            //}
-            //else
-            //{
-            //    var response = new ResponseModel<TaskDto>
-            //    {
-            //        Success = true,
-            //        Result = result
-            //    };
-            //    return Ok(response);
-            //}
+                }, logger, httpContextAccessor, nameof(Update));
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id) //dto gidecek
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await taskService.DeleteAsync(id), logger, HttpContext, "Task Delete");
-            if (!response.Success)
-            {
-                return StatusCode(500, response); //error = new error(errorcodes.internalservererror,"test")
-            }
-            if (!response.Result)
-            {
-                return NotFound(new ResponseModel<TaskDto>
+            return await MethodExecutor.ExecuteAsync(
+                async () => 
                 {
-                    Success = false,
-                    Error = new Error(ErrorCodes.NotFound, "Task couldn't be Deleted")
-                });
-            }
-
-            return Ok(response);
-            
-            //var result = await taskService.DeleteAsync(id);
-
-            //if (!result)
-            //    return NotFound(new ResponseModel<bool>
-            //    {
-            //        Success = false,
-            //        Error = new Error(ErrorCodes.NotFound, "Task not found.")
-            //    });
-            //else
-            //{
-            //    var response = new ResponseModel<bool>
-            //    {
-            //        Success = true,
-            //        Result = result
-            //    };
-            //    return Ok(response);
-            //}
+                    var deletedTask = await taskService.Delete(id); 
+                        if(!deletedTask)
+                            throw new ArgumentException("Task not found.");
+                    
+                    return Ok(deletedTask);
+                
+                }, logger, httpContextAccessor, nameof(Delete));
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            await OperationExecutor.RunAsync(async () => await System.Threading.Tasks.Task.Delay(3000), logger, HttpContext, "Get All Task");
-            var response = await OperationExecutor.ExecuteAsync(async () => await taskService.GetAllAsync(), logger, HttpContext, "Get All Task");
-            {
-                if (!response.Success)
+            return await MethodExecutor.ExecuteAsync(
+                async () => 
                 {
-                    return StatusCode(500, response);
-                }
-                if (response.Result == null)
-                {
-                    return NotFound(new ResponseModel<TaskDto>
-                    {
-                        Success = false,
-                        Error = new Error(ErrorCodes.NotFound, "No Tasks Found")
-                    });
-                }
-                return Ok(response);
-            }
-            //var result = await taskService.GetAllAsync();
-            //if (result == null || result.Count == 0)
-            //{
-            //    return NotFound(new ResponseModel<List<TaskDto>>
-            //    {
-            //        Success = false,
-            //        Error = new Error(ErrorCodes.NotFound, "No tasks found.")
-            //    });
-            //}
-            //var response = new ResponseModel<IEnumerable<TaskDto>>
-            //{
-            //    Success = true,
-            //    Result = result
-            //};
-            //return Ok(response);
+                    await System.Threading.Tasks.Task.Delay(1000);
+                    
+                    var tasks = await taskService.GetAll() ?? throw new ArgumentException("No tasks found.");
+
+                    return Ok(tasks);
+
+                }, logger, httpContextAccessor, nameof(GetAll));
         }
     }
 }

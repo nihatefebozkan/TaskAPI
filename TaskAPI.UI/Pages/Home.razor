@@ -1,0 +1,224 @@
+﻿@page "/home"
+
+<PageTitle>TaskAPI</PageTitle>
+
+<div class="wrap">
+    <header class="top">
+        <div class="brand"><span class="mark" aria-hidden="true">{ }</span>TaskAPI</div>
+        <span class="tag">REST API başlangıç paketleri</span>
+    </header>
+
+    <section class="intro">
+        <h1>Seçeneklerini işaretle, <em>API paketin hazır.</em></h1>
+        <p>Dili, veritabanını ve kimlik doğrulamayı seç, kaynağının alanlarını yaz. Sağdaki özet anında güncellenir.</p>
+    </section>
+
+    <main class="bench">
+        <div class="builder">
+            <fieldset>
+                <legend><span class="step">1</span>Proje</legend>
+                <label class="field" for="project">
+                    Proje adı
+                    <input type="text" id="project" spellcheck="false" autocomplete="off" value="magaza-api" />
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend><span class="step">2</span>Dil ve çatı</legend>
+                <div class="opts">
+                    <label class="opt" for="stack-node">
+                        <input type="radio" id="stack-node" name="stack" checked />
+                        <b><span class="tick" aria-hidden="true"></span>Node.js · Express</b>
+                        <small>JavaScript, npm</small>
+                    </label>
+                    <label class="opt" for="stack-python">
+                        <input type="radio" id="stack-python" name="stack" />
+                        <b><span class="tick" aria-hidden="true"></span>Python · FastAPI</b>
+                        <small>Otomatik doğrulama</small>
+                    </label>
+                    <label class="opt" for="stack-go">
+                        <input type="radio" id="stack-go" name="stack" />
+                        <b><span class="tick" aria-hidden="true"></span>Go · Gin</b>
+                        <small>Tek ikili dosya</small>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span class="step">3</span>Veritabanı</legend>
+                <div class="opts">
+                    <label class="opt" for="db-postgres">
+                        <input type="radio" id="db-postgres" name="db" checked />
+                        <b><span class="tick" aria-hidden="true"></span>PostgreSQL</b>
+                        <small>İlişkisel, üretime uygun</small>
+                    </label>
+                    <label class="opt" for="db-mongo">
+                        <input type="radio" id="db-mongo" name="db" />
+                        <b><span class="tick" aria-hidden="true"></span>MongoDB</b>
+                        <small>Belge tabanlı</small>
+                    </label>
+                    <label class="opt" for="db-sqlite">
+                        <input type="radio" id="db-sqlite" name="db" />
+                        <b><span class="tick" aria-hidden="true"></span>SQLite</b>
+                        <small>Kurulum gerektirmez</small>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span class="step">4</span>Kimlik doğrulama</legend>
+                <div class="opts">
+                    <label class="opt" for="auth-jwt">
+                        <input type="radio" id="auth-jwt" name="auth" checked />
+                        <b><span class="tick" aria-hidden="true"></span>JWT</b>
+                        <small>Girişle token alınır</small>
+                    </label>
+                    <label class="opt" for="auth-apikey">
+                        <input type="radio" id="auth-apikey" name="auth" />
+                        <b><span class="tick" aria-hidden="true"></span>API anahtarı</b>
+                        <small>X-API-Key başlığı</small>
+                    </label>
+                    <label class="opt" for="auth-none">
+                        <input type="radio" id="auth-none" name="auth" />
+                        <b><span class="tick" aria-hidden="true"></span>Yok</b>
+                        <small>Herkese açık</small>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span class="step">5</span>Kaynak ve alanlar</legend>
+                <p class="hint">Kaynak adı URL'de görünür (<code>/products</code> gibi). <code>id</code> ve <code>createdAt</code> otomatik eklenir.</p>
+                <label class="field" for="resource">
+                    Kaynak adı (çoğul, küçük harf)
+                    <input type="text" id="resource" spellcheck="false" autocomplete="off" value="products" />
+                </label>
+
+                <div class="fields">
+                    <div class="fhead" aria-hidden="true"><span>Alan adı</span><span>Tür</span><span></span></div>
+
+                    <div class="frow">
+                        <input type="text" spellcheck="false" aria-label="Alan adı" value="name" />
+                        <select aria-label="Alan türü">
+                            <option selected>metin</option>
+                            <option>ondalık sayı</option>
+                            <option>tam sayı</option>
+                            <option>evet / hayır</option>
+                        </select>
+                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
+                    </div>
+
+                    <div class="frow">
+                        <input type="text" spellcheck="false" aria-label="Alan adı" value="price" />
+                        <select aria-label="Alan türü">
+                            <option>metin</option>
+                            <option selected>ondalık sayı</option>
+                            <option>tam sayı</option>
+                            <option>evet / hayır</option>
+                        </select>
+                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
+                    </div>
+
+                    <div class="frow">
+                        <input type="text" spellcheck="false" aria-label="Alan adı" value="stock" />
+                        <select aria-label="Alan türü">
+                            <option>metin</option>
+                            <option>ondalık sayı</option>
+                            <option selected>tam sayı</option>
+                            <option>evet / hayır</option>
+                        </select>
+                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
+                    </div>
+
+                    <div class="frow">
+                        <input type="text" spellcheck="false" aria-label="Alan adı" value="active" />
+                        <select aria-label="Alan türü">
+                            <option>metin</option>
+                            <option>ondalık sayı</option>
+                            <option>tam sayı</option>
+                            <option selected>evet / hayır</option>
+                        </select>
+                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
+                    </div>
+
+                    <button type="button" class="ghost">+ Alan ekle</button>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span class="step">6</span>Ekstralar</legend>
+                <div class="opts two">
+                    <label class="opt" for="extras-docker">
+                        <input type="checkbox" id="extras-docker" checked />
+                        <b><span class="tick" aria-hidden="true"></span>Docker</b>
+                        <small>Dockerfile ve docker-compose</small>
+                    </label>
+                    <label class="opt" for="extras-docs">
+                        <input type="checkbox" id="extras-docs" checked />
+                        <b><span class="tick" aria-hidden="true"></span>API dokümanı</b>
+                        <small>Swagger arayüzü, /docs</small>
+                    </label>
+                    <label class="opt" for="extras-ratelimit">
+                        <input type="checkbox" id="extras-ratelimit" checked />
+                        <b><span class="tick" aria-hidden="true"></span>Hız sınırı</b>
+                        <small>IP başına dakikada 100 istek</small>
+                    </label>
+                    <label class="opt" for="extras-cors">
+                        <input type="checkbox" id="extras-cors" checked />
+                        <b><span class="tick" aria-hidden="true"></span>CORS</b>
+                        <small>Tarayıcıdan erişim</small>
+                    </label>
+                    <label class="opt" for="extras-tests">
+                        <input type="checkbox" id="extras-tests" checked />
+                        <b><span class="tick" aria-hidden="true"></span>Testler</b>
+                        <small>Çalışan örnek testler</small>
+                    </label>
+                </div>
+            </fieldset>
+        </div>
+
+        <section class="package" aria-label="Paket özeti">
+            <article class="label">
+                <div class="strip"><span>API Paketi</span><span>4 alan</span></div>
+                <div class="body">
+                    <div>
+                        <h2>magaza-api</h2>
+                        <dl class="manifest">
+                            <dt>Yığın</dt>
+                            <dd>Node.js · Express</dd>
+                            <dt>Veritabanı</dt>
+                            <dd>PostgreSQL</dd>
+                            <dt>Kimlik</dt>
+                            <dd>JWT</dd>
+                            <dt>Kaynak</dt>
+                            <dd>/products</dd>
+                            <dt>Ekstralar</dt>
+                            <dd>Docker, API dokümanı, Hız sınırı, CORS, Testler</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="foot">
+                    <button type="button" class="btn">Paketi oluştur</button>
+                </div>
+            </article>
+
+            <div class="card">
+                <h3>Alanlar <small>/products</small></h3>
+                <dl class="manifest">
+                    <dt>id</dt>
+                    <dd>otomatik</dd>
+                    <dt>name</dt>
+                    <dd>metin</dd>
+                    <dt>price</dt>
+                    <dd>ondalık sayı</dd>
+                    <dt>stock</dt>
+                    <dd>tam sayı</dd>
+                    <dt>active</dt>
+                    <dd>evet / hayır</dd>
+                    <dt>createdAt</dt>
+                    <dd>otomatik</dd>
+                </dl>
+            </div>
+        </section>
+    </main>
+</div>

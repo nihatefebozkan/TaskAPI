@@ -1,62 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TaskAPI.Entities.Dtos;
-using TaskAPI.Entities.Interfaces;
 using TaskAPI.Core.Helpers;
 using TaskAPI.Core.Middleware;
-using TaskAPI.Entities.Enums;
-
+using TaskAPI.Application.Dtos;
+using TaskAPI.Application.Interfaces;
+using TaskAPI.Core.Models;
 
 namespace TaskAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
+    public class AuthController(IAccountService authService, ILogger<AuthController> logger,IHttpContextAccessor httpContextAccessor) : ControllerBase
     {
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
+        public async Task<IActionResult> Register(LoginDto loginDto)
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await authService.Register(registerDto), logger, HttpContext, "Register");
-            if (!response.Success)
-            {
-                return response.Error!.ErrorCode switch
-                {
-                    ErrorCodes.NotFound => NotFound(response),
-                    ErrorCodes.BadRequest => BadRequest(response),
-                    _ => StatusCode(500, response)
-                };
-            }
-            if (!response.Result)
-            {
-                return Conflict(new ResponseModel<RegisterDto>
-                {
-                    Error = new Error(ErrorCodes.Conflict, "Username already exists.")
-                });
-            }
-            return Ok(response);
+            var isRegistered = await MethodExecutor.ExecuteAsync(async () => await authService.Register(loginDto), logger, httpContextAccessor, "Register");
+            if (!isRegistered)
+                return Conflict(new ResponseModel<object> { Success = false, Result = null, Error = new ErrorModel(ErrorCodes.Conflict, "Username is Already") });
+            else
+                return Ok(new ResponseModel<bool> { Success = true, Result = isRegistered });
         }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            var response = await OperationExecutor.ExecuteAsync(async () => await authService.Login(loginDto), logger, HttpContext, "Login");
-            if (!response.Success)
-            {
-                return response.Error!.ErrorCode switch
-                {
-                    ErrorCodes.NotFound => NotFound(response),
-                    ErrorCodes.BadRequest => BadRequest(response),
-                    _ => StatusCode(500, response)
-                };
-            }
-            if (response.Result!.Result != LoginResultEnum.Successfuly)
-            {
-                return Unauthorized(new ResponseModel<LoginDto>
-                {
-                    Success = false,
-                    Error = new Error(ErrorCodes.Unauthorized, "Kullanıcı adı veya şifre hatalı.")
-                });
-            }
-            return Ok(response);
+            var isAuthenticated = await MethodExecutor.ExecuteAsync(async () => await authService.Login(loginDto), logger, httpContextAccessor, "Login");
+            if (!isAuthenticated)
+                return Unauthorized(new ResponseModel<object> { Success = false, Result = null, Error = new ErrorModel(ErrorCodes.Unauthorized, "Username or Password Invalid") });
+            else
+                return Ok(new ResponseModel<bool> {Success = true, Result = isAuthenticated });
         }
     }
 }

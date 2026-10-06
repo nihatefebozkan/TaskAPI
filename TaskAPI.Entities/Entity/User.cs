@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TaskAPI.Entities.Entity
+namespace TaskAPI.Domain.Entity
 {
     public class User
     {
