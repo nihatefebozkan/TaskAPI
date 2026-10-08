@@ -50,7 +50,7 @@ namespace TaskAPI.Infrastructure.Security
 
             return CryptographicOperations.FixedTimeEquals(actualHash, expectedHash);
         }
-        private byte[] PepperPassword(string password)      
+        private byte[] PepperPassword(string password)
         {
             return HMACSHA256.HashData(
                 pepperKeyProvider.GetKey("key"),

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using TaskAPI.Application.Dtos;
+﻿using TaskAPI.Application.Dtos;
 
 namespace TaskAPI.Application.Interfaces
 {
@@ -15,3 +11,4 @@ namespace TaskAPI.Application.Interfaces
         Task<bool> Delete(int id); // delete
     }
 }
+// errorcodeleri yoneticem tamma mı yani errorhandlerdeki yapıyı kullanmayacağım kendi olusturdugum errorcodesleri nasıl nerede yonetebilirim arastiricam

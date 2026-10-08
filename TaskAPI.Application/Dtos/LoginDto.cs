@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TaskAPI.Application.Dtos
+﻿namespace TaskAPI.Application.Dtos
 {
     public class LoginDto
     {

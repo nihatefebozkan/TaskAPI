@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TaskAPI.Application.Interfaces;
 using TaskAPI.Infrastructure.Data;
 
 namespace TaskAPI.Infrastructure.Repositories
-{ 
+{
     public class UserRepository(AppDbContext context) : IUserRepository
     {
         public async Task AddAsync(TaskAPI.Domain.Entity.User user)

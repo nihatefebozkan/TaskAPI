@@ -11,7 +11,7 @@ namespace TaskAPI.Infrastructure.Security
 
             if (string.IsNullOrWhiteSpace(base64Key))
             {
-                throw new InvalidOperationException("Security:Pepper ayarı bulunamadı.");
+                throw new InvalidOperationException("pepper key is missing or empty.");
             }
 
             return Convert.FromBase64String(base64Key);

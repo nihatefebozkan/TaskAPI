@@ -1,17 +1,12 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore; //Entity Framework Core kütüphanesini içe aktarır.
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using Scalar.AspNetCore;
-using System.Text;
-using TaskAPI.Core.Middleware;
 using TaskAPI.Application.Interfaces;
+using TaskAPI.Application.Mapping;
+using TaskAPI.Application.Services;
+using TaskAPI.Core.Middleware;
 using TaskAPI.Infrastructure.Data; //veritabanı bağlantısı için gerekli olan DbContext'i içe aktarır.
 using TaskAPI.Infrastructure.Repositories; //veritabanı işlemleri için gerekli olan repository sınıfını içe aktarır.
 using TaskAPI.Infrastructure.Security;
-using TaskAPI.Application.Services;
-using TaskAPI.Application.Dtos;
-using TaskAPI.Application.Mapping;
 
 public partial class Program
 {
@@ -23,11 +18,14 @@ public partial class Program
 
         builder.Services.AddControllers();
 
-        builder.Services.AddOpenApi();
+        builder.Services.AddOpenApi(options =>
+        {
+            options.AddOperationTransformer((operation, context, cancellationToken) => System.Threading.Tasks.Task.CompletedTask);
+        });
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // eklendi: veritabanı bağlantısı için gerekli olan DbContext'i ekler ve SQL Server kullanır. Connection string, appsettings.json dosyasından alınır.
-        
-        
+
+
         builder.Services.AddScoped<ITaskRepository, TaskRepository>();
         builder.Services.AddScoped<ITaskService, TaskService>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -43,7 +41,7 @@ public partial class Program
         }
         app.UseMiddleware<ErrorHandler>();
         // Configure the HTTP request pipeline.
-         
+
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();

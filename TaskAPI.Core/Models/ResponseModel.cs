@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TaskAPI.Core.Models
+﻿namespace TaskAPI.Core.Models
 {
     public class ResponseModel<T>
     {

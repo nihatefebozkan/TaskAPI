@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TaskAPI.Domain.Entity
+﻿namespace TaskAPI.Domain.Entity
 {
     public class User
     {
@@ -11,7 +7,7 @@ namespace TaskAPI.Domain.Entity
         {
             if (string.IsNullOrWhiteSpace(username))
             {
-              throw new ArgumentException("Kullanıcı adı boş olamaz.");
+                throw new ArgumentException("Kullanıcı adı boş olamaz.");
             }
             if (string.IsNullOrWhiteSpace(passwordHash))
             {

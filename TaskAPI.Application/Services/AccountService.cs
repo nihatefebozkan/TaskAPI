@@ -1,13 +1,8 @@
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TaskAPI.Core.Helpers;
-using TaskAPI.Application.Dtos;
-using TaskAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using TaskAPI.Application.Dtos;
+using TaskAPI.Application.Interfaces;
+using TaskAPI.Core.Helpers;
 namespace TaskAPI.Application.Services
 {
     public class AccountService(IUserRepository userRepository, IPasswordHasher passwordHasher) : IAccountService //dependency injection for IUserRepository
@@ -37,7 +32,7 @@ namespace TaskAPI.Application.Services
         {
             TaskAPI.Domain.Entity.User user = await userRepository.GetByUsernameAsync(loginDto.Username) ?? throw new Exception("Invalid username or password.");
 
-            bool result =  passwordHasher.Verify(loginDto.Password, user.PasswordHash);
+            bool result = passwordHasher.Verify(loginDto.Password, user.PasswordHash);
             if (!result)
             {
                 throw new Exception("Invalid username or password.");

@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TaskAPI.Application.Interfaces;
 using TaskAPI.Infrastructure.Data;
 
@@ -21,10 +18,7 @@ namespace TaskAPI.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return task;
         }
-        public async Task<Domain.Entity.Task> Get(int id) //bu metod, verilen id'ye sahip TaskAPI.Domain.Models.Entity.Task nesnesini döndürür. Eğer nesne bulunamazsa null döner.
-        {
-            return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
-        }
+        public async Task<Domain.Entity.Task> Get(int id) => (await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id))!; //bu metod, verilen id'ye sahip TaskAPI.Domain.Models.Entity.Task nesnesini döndürür. Eğer nesne bulunamazsa null döner.
         public async Task<Domain.Entity.Task> Update(Domain.Entity.Task task) //bu metod, verilen TaskAPI.Domain.Models.Entity.Task nesnesini günceller ve SaveChanges() metodu ile değişiklikleri kaydeder.
         {
             _context.Tasks.Update(task);

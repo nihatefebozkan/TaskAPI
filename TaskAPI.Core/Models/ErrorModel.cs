@@ -1,55 +1,56 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TaskAPI.Core.Helpers;
-
-namespace TaskAPI.Core.Models
+﻿namespace TaskAPI.Core.Models
 {
     public class ErrorModel
     {
-        //public bool Success { get; }
-        //public object? Result { get; }
-        public string ErrorCode { get; }
-        public string? Description { get; }
-        public string Message { get; }
-        public string CorrelationId { get; }
-        public DateTime TimeStamp { get; }
+        public string ErrorCode { get; set; }
+        public int StatusCode { get; set; }
+        public string? Description { get; set; }
+        public string Message { get; set; }
+        public string CorrelationId { get; set; }
+        public DateTime TimeStamp { get; set; }
 
-        public ErrorModel(string message)
+
+        public ErrorModel()
         {
-            ErrorCode = ErrorCodes.GenericError;
-            Message = message;
-            CorrelationId = Guid.NewGuid().ToString();
-            TimeStamp = DateTime.UtcNow;
+
         }
-
-
         public ErrorModel(string errorCode, string message)
         {
             ErrorCode = errorCode;
             Message = message;
+            StatusCode = 500; // Default to Internal Server Error
             CorrelationId = Guid.NewGuid().ToString();
             TimeStamp = DateTime.UtcNow;
         }
 
-        public ErrorModel(string errorCode, string description, string message)
+
+        public ErrorModel(string errorCode, string message, int statusCode)
+        {
+            ErrorCode = errorCode;
+            Message = message;
+            StatusCode = statusCode;
+            CorrelationId = Guid.NewGuid().ToString();
+            TimeStamp = DateTime.UtcNow;
+        }
+
+        public ErrorModel(string errorCode, string description, string message, int statusCode)
         {
             ErrorCode = errorCode;
             Description = description;
             Message = message;
+            StatusCode = statusCode;
             CorrelationId = Guid.NewGuid().ToString();
             TimeStamp = DateTime.UtcNow;
         }
 
-        public ErrorModel(string errorCode, string description, string message, string correlationId)
+        public ErrorModel(string errorCode, string description, string message, string correlationId, int statusCode)
         {
             ErrorCode = errorCode;
             Description = description;
             Message = message;
             CorrelationId = correlationId;
+            StatusCode = statusCode;
             TimeStamp = DateTime.UtcNow;
         }
-
     }
 }
