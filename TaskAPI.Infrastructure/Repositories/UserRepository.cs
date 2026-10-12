@@ -11,7 +11,7 @@ namespace TaskAPI.Infrastructure.Repositories
             context.Users.Add(user);
             await context.SaveChangesAsync();
         }
-        public async Task<Domain.Entity.User?> GetByUsernameAsync(string username)
+        public async Task<Domain.Entity.User?> GetByUsername(string username)
         {
             return await context.Users.FirstOrDefaultAsync(u => u.Username == username);
         }

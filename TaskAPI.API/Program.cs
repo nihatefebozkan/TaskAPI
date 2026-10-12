@@ -34,6 +34,7 @@ public partial class Program
         builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
+        builder.Services.AddJwtAuthentication(builder.Configuration);
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())
         {
@@ -56,6 +57,7 @@ public partial class Program
         app.UseBlazorFrameworkFiles();
         app.UseStaticFiles();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

@@ -11,6 +11,8 @@ namespace TaskAPI.Application.Mapping
 
             CreateMap<TaskDto, TaskAPI.Domain.Entity.Task>()
                 .ConstructUsing(dto => new TaskAPI.Domain.Entity.Task(dto.Title ?? string.Empty, dto.Description ?? string.Empty, DateTime.UtcNow, dto.DueDate))
+                .ForMember(task => task.Title, option => option.NullSubstitute(string.Empty))
+                .ForMember(task => task.Description, option => option.NullSubstitute(string.Empty))
                 .ForMember(task => task.Id, option => option.Ignore())
                 .ForMember(task => task.CreatedAt, option => option.Ignore())
                 .ForMember(task => task.IsCompleted, option => option.Ignore())

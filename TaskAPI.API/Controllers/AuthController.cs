@@ -1,33 +1,45 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskAPI.Application.Dtos;
 using TaskAPI.Application.Interfaces;
 using TaskAPI.Core.Helpers;
-using TaskAPI.Core.Models;
 
 namespace TaskAPI.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController(IAccountService authService, ILogger<AuthController> logger, IHttpContextAccessor httpContextAccessor) : ControllerBase
     {
+        [AllowAnonymous]
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(LoginDto loginDto)
+        public async Task<IActionResult> Register(LoginRequestDto loginRequestDto)
         {
-            var isRegistered = await MethodExecutor.ExecuteAsync(async () => await authService.Register(loginDto), logger, httpContextAccessor, "Register");
-            if (!isRegistered)
-                return Conflict(new ResponseModel<object> { Success = false, Result = null, Error = new ErrorModel(ErrorCodes.Conflict, "Username is Already", 409) });
-            else
-                return Ok(new ResponseModel<bool> { Success = true, Result = isRegistered });
-        }
+            return await MethodExecutor.ExecuteAsync<IActionResult>(
+                async () =>
+                {
+                    var isRegistered =
+                        await authService.Register(loginRequestDto);
 
+                    if (!isRegistered)
+                        throw new TaskApiException(ErrorCodes.Conflict, "Username already exists.", 409);
+
+                    return Ok(isRegistered);
+
+                }, logger, httpContextAccessor, nameof(Register));
+        }
+        [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
         {
-            var isAuthenticated = await MethodExecutor.ExecuteAsync(async () => await authService.Login(loginDto), logger, httpContextAccessor, "Login");
-            if (!isAuthenticated)
-                return Unauthorized(new ResponseModel<object> { Success = false, Result = null, Error = new ErrorModel(ErrorCodes.Unauthorized, "Username or Password Invalid") });
-            else
-                return Ok(new ResponseModel<bool> { Success = true, Result = isAuthenticated });
+            return await MethodExecutor.ExecuteAsync<IActionResult>(
+                async () =>
+                {
+                    var response = await authService.Login(loginRequestDto);
+
+                    return Ok(response);
+
+                }, logger, httpContextAccessor, nameof(Login));
         }
     }
 }

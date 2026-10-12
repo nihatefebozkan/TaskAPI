@@ -1,0 +1,108 @@
+TaskAPI
+│
+├── TaskAPI.API
+│   ├── Controllers
+│   ├── Configuration
+│   ├── Extensions
+│   ├── Filters
+│   ├── Authorization
+│   ├── OpenApi
+│   ├── Constants
+│   ├── Properties
+│   │   └── launchSettings.json
+│   ├── Program.cs
+│   ├── appsettings.json
+│   └── appsettings.Development.json
+│
+├── TaskAPI.Application
+│   ├── Services
+│   ├── Interfaces
+│   │   ├── Services
+│   │   ├── Repositories
+│   │   ├── Security
+│   │   ├── Notifications
+│   │   └── Storage
+│   ├── Dtos
+│   │   ├── Requests
+│   │   └── Responses
+│   ├── Validation
+│   ├── Mapping
+│   ├── Policies
+│   ├── Exceptions
+│   └── DependencyInjection.cs
+│
+├── TaskAPI.Domain
+│   ├── Entities
+│   ├── ValueObjects
+│   ├── Enums
+│   ├── Events
+│   ├── Services
+│   ├── Rules
+│   └── Exceptions
+│
+├── TaskAPI.Infrastructure
+│   ├── Persistence
+│   │   ├── Contexts
+│   │   ├── Configurations
+│   │   ├── Repositories
+│   │   └── Migrations
+│   ├── Security
+│   │   ├── Hashing
+│   │   ├── Tokens
+│   │   └── KeyProviders
+│   ├── Caching
+│   ├── Notifications
+│   ├── Storage
+│   ├── Integrations
+│   ├── Messaging
+│   ├── BackgroundJobs
+│   └── DependencyInjection.cs
+│
+└── TaskAPI.Core
+    ├── Helpers
+    │   └── OperationExecutor.cs
+    ├── Middleware
+    │   └── ErrorHandler.cs
+    ├── Models
+    │   ├── Responses
+    │   │   ├── ResponseModel.cs
+    │   │   └── ErrorModel.cs
+    │   └── Pagination
+    ├── Logging
+    ├── Caching
+    ├── Serialization
+    ├── Security
+    ├── Resilience
+    ├── Observability
+    ├── Localization
+    ├── Idempotency
+    ├── Time
+    ├── HealthChecks
+    ├── Constants
+    └── Extensions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+C:\Users\efebo\AppData\Roaming\Microsoft\UserSecrets\

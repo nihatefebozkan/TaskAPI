@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskAPI.Application.Dtos;
 using TaskAPI.Application.Interfaces;
 using TaskAPI.Core.Helpers;
 
+
 namespace TaskAPI.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TaskController(ITaskService taskService, ILogger<TaskController> logger, IHttpContextAccessor httpContextAccessor) : ControllerBase

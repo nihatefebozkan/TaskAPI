@@ -11,20 +11,41 @@ namespace TaskAPI.Core.Helpers
             var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("No active HTTP request found");
             try
             {
-                logger.LogInformation("{operationName} started at {Method} {Path} at {time}", operationName, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
+                logger.LogInformation("{operationName} started at {Method} {Path} at {time}", operationName,
+                    httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
                 var result = await operation();
-                logger.LogInformation("{operationName} completed successfully at {Method} {Path} at {time}", operationName, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
+                logger.LogInformation("{operationName} completed successfully at {Method} {Path} at {time}",
+                    operationName, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
                 return result;
             }
             catch (ArgumentException ex)
             {
-                logger.LogWarning("{operationName} failed with ArgumentException: {message} at {Method} {Path} at {time}", operationName, ex.Message, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
+                logger.LogWarning(
+                    "{operationName} failed with ArgumentException: {message} at {Method} {Path} at {time}",
+                    operationName, ex.Message, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
+                throw;
+            }
+            catch (TaskApiException ex)
+            {
+                logger.LogError(ex, "{operationName} failed with TaskApiException at {Method} {Path} at {time}", operationName, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
+
+                var currentException = ex.InnerException;
+                var depth = 1;
+
+                while (currentException != null)
+                {
+                    logger.LogError("{operationName} inner error at depth {Depth}: {ExceptionType} — {Message}", operationName, depth, currentException.GetType().Name, currentException.Message);
+
+                    currentException = currentException.InnerException;
+                    depth++;
+                }
                 throw;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "{operationName} failed with unexpected error at {Method} {Path} at {time}", operationName, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
-                throw;
+                logger.LogError(ex, "{operationName} failed with unexpected error at {Method} {Path} at {time}",
+                    operationName, httpContext.Request.Method, httpContext.Request.Path, DateTime.UtcNow);
+                throw new TaskApiException(ErrorCodes.InternalServerError, $"{operationName} could not be completed.", 500, ex);
             }
         }
         public static T Execute<T>(Func<T> operation, ILogger logger, IHttpContextAccessor httpContextAccessor, string operationName)

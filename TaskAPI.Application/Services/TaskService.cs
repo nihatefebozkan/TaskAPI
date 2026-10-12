@@ -15,9 +15,9 @@ namespace TaskAPI.Application.Services
                 async () =>
                 {
                     if (string.IsNullOrWhiteSpace(dto.Title))
-                        throw new TaskApiException(ErrorCodes.InvalidTaskFormat, "Title cannot be empty.", 400);
+                        throw new TaskApiException(ErrorCodes.InvalidTaskFormat, "Title cannot be empty.");
                     if (dto.DueDate < DateTime.UtcNow)
-                        throw new TaskApiException(ErrorCodes.InvalidTaskFormat, "Due date cannot be in the past.", 400);
+                        throw new TaskApiException(ErrorCodes.InvalidTaskFormat, "Due date cannot be in the past.");
 
                     var task = mapper.Map<TaskAPI.Domain.Entity.Task>(dto) ?? throw new TaskApiException(ErrorCodes.InternalServerError, "Task could not be mapped to domain entity", 500);
 
@@ -44,6 +44,8 @@ namespace TaskAPI.Application.Services
             return await MethodExecutor.ExecuteAsync<TaskDto?>(
                 async () =>
                 {
+                    //throw new InvalidOperationException("First inner error.", new Exception("Second inner error."));
+                    //throw new InvalidOperationException("Inner exception test.");
                     //throw new TaskApiException(ErrorCodes.InternalServerError, "Task could not be mapped");
                     var task = await taskRepository.Get(id) ?? throw new TaskApiException(ErrorCodes.TaskNotFound, "Task not found.", 404);
 
@@ -59,7 +61,7 @@ namespace TaskAPI.Application.Services
                       var task = await taskRepository.Get(id) ?? throw new TaskApiException(ErrorCodes.TaskNotFound, "Task not found.", 404);
 
                       if (dto.DueDate < DateTime.UtcNow)
-                          throw new TaskApiException(ErrorCodes.InvalidTaskFormat, "Due date cannot be in the past.", 400);
+                          throw new TaskApiException(ErrorCodes.InvalidTaskFormat, "Due date cannot be in the past.");
 
                       task.DueDate = dto.DueDate;
 
