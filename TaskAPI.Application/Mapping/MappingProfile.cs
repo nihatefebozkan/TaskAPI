@@ -16,7 +16,8 @@ namespace TaskAPI.Application.Mapping
                 .ForMember(task => task.Id, option => option.Ignore())
                 .ForMember(task => task.CreatedAt, option => option.Ignore())
                 .ForMember(task => task.IsCompleted, option => option.Ignore())
-                .ForMember(task => task.DeletedAt, option => option.Ignore());
+                .ForMember(task => task.DeletedAt, option => option.Ignore())
+                .ForMember(task => task.Users, option => option.Ignore());
         }
     }
 }

@@ -18,5 +18,6 @@
         public DateTime DueDate { get; set; }
         public bool IsCompleted { get; set; }
         public DateTimeOffset? DeletedAt { get; set; }
+        public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

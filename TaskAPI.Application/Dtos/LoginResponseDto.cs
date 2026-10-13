@@ -2,7 +2,7 @@
 {
     public class LoginResponseDto
     {
-        public string AccessToken { get; set; }
-        public DateTime ExpireAt { get; set; }
+        public required string AccessToken { get; set; }
+        public required DateTime ExpireAt { get; set; }
     }
 }

@@ -78,6 +78,36 @@ namespace TaskAPI.Infrastructure.Migrations
 
                     b.ToTable("Users");
                 });
+
+            modelBuilder.Entity("TaskUser", b =>
+                {
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TaskId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("TaskUser");
+                });
+
+            modelBuilder.Entity("TaskUser", b =>
+                {
+                    b.HasOne("TaskAPI.Domain.Entity.Task", null)
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskAPI.Domain.Entity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 #pragma warning restore 612, 618
         }
     }

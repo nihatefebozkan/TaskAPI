@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TaskAPI.Domain.Entity;
-
-namespace TaskAPI.Application.Interfaces
+﻿namespace TaskAPI.Application.Interfaces
 {
     public interface ITaskRepository
     {
-        Task<List<Domain.Entity.Task>> GetAll();
-        Task<Domain.Entity.Task> Get(int id);
+        Task<List<TaskAPI.Domain.Entity.Task>> GetAll(int userId);
+        Task<Domain.Entity.Task?> Get(int id, int userId);
         Task<Domain.Entity.Task> Add(Domain.Entity.Task task);
         Task<Domain.Entity.Task> Update(Domain.Entity.Task task);
         Task<Domain.Entity.Task> Delete(Domain.Entity.Task task);

@@ -11,7 +11,12 @@ namespace TaskAPI.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<List<Domain.Entity.Task>> GetAll() => await _context.Tasks.ToListAsync(); // bu metod, veritabanındaki tüm TaskAPI.Domain.Models.Entity.Task nesnelerini döndürür.
+        public async Task<List<TaskAPI.Domain.Entity.Task>> GetAll(int userId)
+        {
+            return await _context.Tasks
+                .Where(task => task.Users.Any(user => user.Id == userId))
+                .ToListAsync();
+        }
         public async Task<Domain.Entity.Task> Add(Domain.Entity.Task task) //bu metod, TaskAPI.Domain.Models.Entity.Task nesnesini alır ve veritabanına ekler. SaveChanges() metodu ile değişiklikleri kaydeder.
         {
             _context.Tasks.Add(task);
@@ -19,11 +24,11 @@ namespace TaskAPI.Infrastructure.Repositories
             return task;
         }
 
-        //public Task<TaskAPI.Domain.Entity.Task> Get(int id)
-        //{
-        //    throw new InvalidOperationException("Repository test error.", new Exception("Underlying test error."));
-        //}
-        public async Task<Domain.Entity.Task> Get(int id) => (await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id))!; //bu metod, verilen id'ye sahip TaskAPI.Domain.Models.Entity.Task nesnesini döndürür. Eğer nesne bulunamazsa null döner.
+        public async Task<Domain.Entity.Task?> Get(int id, int userId)
+        {
+            return await _context.Tasks
+                .FirstOrDefaultAsync(task => task.Id == id && task.Users.Any(user => user.Id == userId));
+        }
         public async Task<Domain.Entity.Task> Update(Domain.Entity.Task task) //bu metod, verilen TaskAPI.Domain.Models.Entity.Task nesnesini günceller ve SaveChanges() metodu ile değişiklikleri kaydeder.
         {
             _context.Tasks.Update(task);

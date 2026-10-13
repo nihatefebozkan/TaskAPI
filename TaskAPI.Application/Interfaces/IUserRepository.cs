@@ -6,5 +6,6 @@ namespace TaskAPI.Application.Interfaces
     {
         Task<User?> GetByUsername(string username);
         System.Threading.Tasks.Task AddAsync(User user);
+        Task<User?> GetById(int id);
     }
 }

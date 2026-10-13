@@ -25,6 +25,11 @@ namespace TaskAPI.Application.Services
         {
             return await MethodExecutor.ExecuteAsync(async () =>
             {
+                if (string.IsNullOrEmpty(loginRequestDto.Username) || string.IsNullOrEmpty(loginRequestDto.Password))
+                {
+                    throw new TaskApiException(ErrorCodes.BadRequest, "Username and password are required.", 400);
+                }
+
                 var existingUser = await userRepository.GetByUsername(loginRequestDto.Username);
                 if (existingUser != null)
                 {
@@ -32,6 +37,10 @@ namespace TaskAPI.Application.Services
                 }
 
                 var passwordHash = passwordHasher.Hash(loginRequestDto.Password);
+                if (string.IsNullOrWhiteSpace(passwordHash))
+                {
+                    throw new TaskApiException(ErrorCodes.InternalServerError, "Internal Server Error");
+                }
                 var user = new TaskAPI.Domain.Entity.User(loginRequestDto.Username, passwordHash, DateTime.UtcNow);
                 await userRepository.AddAsync(user);
                 return true; // User registered successfully
