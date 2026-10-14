@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using TaskAPI.Application.Dtos;
 using TaskAPI.Application.Interfaces;
 using TaskAPI.Core.Helpers;
@@ -16,7 +12,8 @@ namespace TaskAPI.Application.Services
         IPasswordHasher passwordHasher,
         ILogger<AccountService> logger,
         IHttpContextAccessor httpContextAccessor,
-        IConfiguration configuration) : IAccountService //dependency injection for IUserRepository
+        IConfiguration configuration,
+        JwtHelper jwtHelper) : IAccountService //dependency injection for IUserRepository
     {
         private const string DummyHash =
             "v1.600000.AAAAAAAAAAAAAAAAAAAAAA==.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
@@ -48,9 +45,9 @@ namespace TaskAPI.Application.Services
             // burda tek tek tanımlama useri direkt altına yaz
         }
 
-        public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto) // TODO: Implement JWT token generation and return it to the client for authentication
+        public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
-            return await MethodExecutor.ExecuteAsync(
+            return await MethodExecutor.ExecuteAsync<LoginResponseDto>(
                 async () =>
                 {
                     var user = await userRepository.GetByUsername(loginRequestDto.Username) ??
@@ -60,56 +57,78 @@ namespace TaskAPI.Application.Services
                         throw new TaskApiException(ErrorCodes.Unauthorized, "Invalid username or password.", 401);
                     }
 
-                    return CreateAccessToken(user);
+                    var refreshTokenLifeTimeSeconds = configuration.GetValue<int>("Jwt:RefreshTokenLifeTimeSeconds");
+
+                    if (refreshTokenLifeTimeSeconds <= 0)
+                        throw new TaskApiException(ErrorCodes.InternalServerError, "Refresh token configuration is invalid.", 500);
+
+                    var accessToken = jwtHelper.CreateAccessToken(user.Id);
+                    var response = new LoginResponseDto
+                    {
+                        AccessToken = accessToken.AccessToken,
+                        ExpireAt = accessToken.ExpireAt
+                    };
+                    var refreshToken = jwtHelper.CreateRefreshToken();
+                    var refreshTokenExpireAt = DateTime.UtcNow.AddSeconds(refreshTokenLifeTimeSeconds);
+
+                    var saved = await userRepository.SetRefreshToken(user.Id, jwtHelper.HashRefreshToken(refreshToken), refreshTokenExpireAt);
+
+                    if (!saved)
+                        throw new TaskApiException(ErrorCodes.Unauthorized, "User no longer exists.", 401);
+
+                    response.RefreshToken = refreshToken;
+                    response.RefreshTokenExpireAt = refreshTokenExpireAt;
+
+                    return response;
                 }, logger, httpContextAccessor, nameof(Login));
         }
 
-        public LoginResponseDto CreateAccessToken(TaskAPI.Domain.Entity.User user)
+        public async Task<LoginResponseDto> Refresh(string refreshToken)
         {
-            return MethodExecutor.Execute<LoginResponseDto>(
-                () =>
+            return await MethodExecutor.ExecuteAsync<LoginResponseDto>(
+                async () =>
                 {
-                    var issuer = configuration["Jwt:Issuer"];
-                    var audience = configuration["Jwt:Audience"];
-                    var lifeTimeSeconds = configuration.GetValue<int>("Jwt:AccessTokenLifeTimeSeconds");
-                    if (string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience) || lifeTimeSeconds <= 0)
-                    {
-                        throw new TaskApiException(ErrorCodes.InternalServerError, "Failed to generate access token.");
-                    }
-                    var expireAt = DateTime.UtcNow.AddSeconds(lifeTimeSeconds);
-                    var claims = new[]
-                        {
-                            new Claim("sub", user.Id.ToString(CultureInfo.InvariantCulture)),
-                        };
-                    var signingKeyBase64 = configuration["Jwt:SigningKey"];
-                    if (string.IsNullOrEmpty(signingKeyBase64))
-                    {
-                        throw new TaskApiException(ErrorCodes.InternalServerError, "Failed to generate access token.");
-                    }
-                    var keyBytes = Convert.FromBase64String(signingKeyBase64);
-                    if (keyBytes.Length < 32)
-                    {
-                        throw new TaskApiException(ErrorCodes.InternalServerError, "Failed to generate access token.");
-                    }
-                    var securityKey = new SymmetricSecurityKey(keyBytes);
-                    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-                    var jwt = new JwtSecurityToken(
-                        issuer: issuer,
-                        audience: audience,
-                        claims: claims,
-                        expires: expireAt,
-                        signingCredentials: credentials);
+                    var tokenHash = jwtHelper.HashRefreshToken(refreshToken);
+                    var user = await userRepository.GetByRefreshTokenHash(tokenHash);
+                    var now = DateTime.UtcNow;
 
-                    var token = new JwtSecurityTokenHandler().WriteToken(jwt);
+                    if (user is null || user.RefreshTokenExpireAt is null || user.RefreshTokenExpireAt <= now)
+                        throw new TaskApiException(ErrorCodes.Unauthorized, "Refresh token is invalid or expired.", 401);
 
-                    return new LoginResponseDto()
+                    var accessToken = jwtHelper.CreateAccessToken(user.Id);
+                    var response = new LoginResponseDto
                     {
-                        AccessToken = token,
-                        ExpireAt = expireAt
+                        AccessToken = accessToken.AccessToken,
+                        ExpireAt = accessToken.ExpireAt
                     };
-                }, logger, httpContextAccessor, nameof(CreateAccessToken));
+                    var newRefreshToken = jwtHelper.CreateRefreshToken();
+
+                    var rotated = await userRepository.RotateRefreshToken(user.Id, tokenHash, jwtHelper.HashRefreshToken(newRefreshToken), now);
+
+                    if (!rotated)
+                        throw new TaskApiException(ErrorCodes.Unauthorized, "Refresh token is invalid or expired.", 401);
+
+                    response.RefreshToken = newRefreshToken;
+                    response.RefreshTokenExpireAt = DateTime.SpecifyKind(user.RefreshTokenExpireAt.Value, DateTimeKind.Utc);
+
+                    return response;
+
+                }, logger, httpContextAccessor, nameof(Refresh));
         }
+
+        public async Task<bool> Logout(string refreshToken)
+        {
+            return await MethodExecutor.ExecuteAsync<bool>(
+                async () =>
+                {
+                    var tokenHash = jwtHelper.HashRefreshToken(refreshToken);
+
+                    await userRepository.ClearRefreshToken(tokenHash);
+
+                    return true;
+
+                }, logger, httpContextAccessor, nameof(Logout));
+        }
+
     }
 }
-
-

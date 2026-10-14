@@ -1,224 +1,338 @@
-﻿@page "/home"
+@page "/home"
+@page "/tasks"
+@page "/tasks/add"
+@page "/tasks/update"
+@page "/tasks/delete"
+@using System.Globalization
+@inject ApiClient Api
+@inject NavigationManager Navigation
 
-<PageTitle>TaskAPI</PageTitle>
+<PageTitle>@PageTitle · TaskAPI</PageTitle>
 
-<div class="wrap">
-    <header class="top">
-        <div class="brand"><span class="mark" aria-hidden="true">{ }</span>TaskAPI</div>
-        <span class="tag">REST API başlangıç paketleri</span>
-    </header>
-
-    <section class="intro">
-        <h1>Seçeneklerini işaretle, <em>API paketin hazır.</em></h1>
-        <p>Dili, veritabanını ve kimlik doğrulamayı seç, kaynağının alanlarını yaz. Sağdaki özet anında güncellenir.</p>
-    </section>
-
-    <main class="bench">
-        <div class="builder">
-            <fieldset>
-                <legend><span class="step">1</span>Proje</legend>
-                <label class="field" for="project">
-                    Proje adı
-                    <input type="text" id="project" spellcheck="false" autocomplete="off" value="magaza-api" />
-                </label>
-            </fieldset>
-
-            <fieldset>
-                <legend><span class="step">2</span>Dil ve çatı</legend>
-                <div class="opts">
-                    <label class="opt" for="stack-node">
-                        <input type="radio" id="stack-node" name="stack" checked />
-                        <b><span class="tick" aria-hidden="true"></span>Node.js · Express</b>
-                        <small>JavaScript, npm</small>
-                    </label>
-                    <label class="opt" for="stack-python">
-                        <input type="radio" id="stack-python" name="stack" />
-                        <b><span class="tick" aria-hidden="true"></span>Python · FastAPI</b>
-                        <small>Otomatik doğrulama</small>
-                    </label>
-                    <label class="opt" for="stack-go">
-                        <input type="radio" id="stack-go" name="stack" />
-                        <b><span class="tick" aria-hidden="true"></span>Go · Gin</b>
-                        <small>Tek ikili dosya</small>
-                    </label>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend><span class="step">3</span>Veritabanı</legend>
-                <div class="opts">
-                    <label class="opt" for="db-postgres">
-                        <input type="radio" id="db-postgres" name="db" checked />
-                        <b><span class="tick" aria-hidden="true"></span>PostgreSQL</b>
-                        <small>İlişkisel, üretime uygun</small>
-                    </label>
-                    <label class="opt" for="db-mongo">
-                        <input type="radio" id="db-mongo" name="db" />
-                        <b><span class="tick" aria-hidden="true"></span>MongoDB</b>
-                        <small>Belge tabanlı</small>
-                    </label>
-                    <label class="opt" for="db-sqlite">
-                        <input type="radio" id="db-sqlite" name="db" />
-                        <b><span class="tick" aria-hidden="true"></span>SQLite</b>
-                        <small>Kurulum gerektirmez</small>
-                    </label>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend><span class="step">4</span>Kimlik doğrulama</legend>
-                <div class="opts">
-                    <label class="opt" for="auth-jwt">
-                        <input type="radio" id="auth-jwt" name="auth" checked />
-                        <b><span class="tick" aria-hidden="true"></span>JWT</b>
-                        <small>Girişle token alınır</small>
-                    </label>
-                    <label class="opt" for="auth-apikey">
-                        <input type="radio" id="auth-apikey" name="auth" />
-                        <b><span class="tick" aria-hidden="true"></span>API anahtarı</b>
-                        <small>X-API-Key başlığı</small>
-                    </label>
-                    <label class="opt" for="auth-none">
-                        <input type="radio" id="auth-none" name="auth" />
-                        <b><span class="tick" aria-hidden="true"></span>Yok</b>
-                        <small>Herkese açık</small>
-                    </label>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend><span class="step">5</span>Kaynak ve alanlar</legend>
-                <p class="hint">Kaynak adı URL'de görünür (<code>/products</code> gibi). <code>id</code> ve <code>createdAt</code> otomatik eklenir.</p>
-                <label class="field" for="resource">
-                    Kaynak adı (çoğul, küçük harf)
-                    <input type="text" id="resource" spellcheck="false" autocomplete="off" value="products" />
-                </label>
-
-                <div class="fields">
-                    <div class="fhead" aria-hidden="true"><span>Alan adı</span><span>Tür</span><span></span></div>
-
-                    <div class="frow">
-                        <input type="text" spellcheck="false" aria-label="Alan adı" value="name" />
-                        <select aria-label="Alan türü">
-                            <option selected>metin</option>
-                            <option>ondalık sayı</option>
-                            <option>tam sayı</option>
-                            <option>evet / hayır</option>
-                        </select>
-                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
-                    </div>
-
-                    <div class="frow">
-                        <input type="text" spellcheck="false" aria-label="Alan adı" value="price" />
-                        <select aria-label="Alan türü">
-                            <option>metin</option>
-                            <option selected>ondalık sayı</option>
-                            <option>tam sayı</option>
-                            <option>evet / hayır</option>
-                        </select>
-                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
-                    </div>
-
-                    <div class="frow">
-                        <input type="text" spellcheck="false" aria-label="Alan adı" value="stock" />
-                        <select aria-label="Alan türü">
-                            <option>metin</option>
-                            <option>ondalık sayı</option>
-                            <option selected>tam sayı</option>
-                            <option>evet / hayır</option>
-                        </select>
-                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
-                    </div>
-
-                    <div class="frow">
-                        <input type="text" spellcheck="false" aria-label="Alan adı" value="active" />
-                        <select aria-label="Alan türü">
-                            <option>metin</option>
-                            <option>ondalık sayı</option>
-                            <option>tam sayı</option>
-                            <option selected>evet / hayır</option>
-                        </select>
-                        <button type="button" class="iconbtn" aria-label="Alanı sil">×</button>
-                    </div>
-
-                    <button type="button" class="ghost">+ Alan ekle</button>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend><span class="step">6</span>Ekstralar</legend>
-                <div class="opts two">
-                    <label class="opt" for="extras-docker">
-                        <input type="checkbox" id="extras-docker" checked />
-                        <b><span class="tick" aria-hidden="true"></span>Docker</b>
-                        <small>Dockerfile ve docker-compose</small>
-                    </label>
-                    <label class="opt" for="extras-docs">
-                        <input type="checkbox" id="extras-docs" checked />
-                        <b><span class="tick" aria-hidden="true"></span>API dokümanı</b>
-                        <small>Swagger arayüzü, /docs</small>
-                    </label>
-                    <label class="opt" for="extras-ratelimit">
-                        <input type="checkbox" id="extras-ratelimit" checked />
-                        <b><span class="tick" aria-hidden="true"></span>Hız sınırı</b>
-                        <small>IP başına dakikada 100 istek</small>
-                    </label>
-                    <label class="opt" for="extras-cors">
-                        <input type="checkbox" id="extras-cors" checked />
-                        <b><span class="tick" aria-hidden="true"></span>CORS</b>
-                        <small>Tarayıcıdan erişim</small>
-                    </label>
-                    <label class="opt" for="extras-tests">
-                        <input type="checkbox" id="extras-tests" checked />
-                        <b><span class="tick" aria-hidden="true"></span>Testler</b>
-                        <small>Çalışan örnek testler</small>
-                    </label>
-                </div>
-            </fieldset>
-        </div>
-
-        <section class="package" aria-label="Paket özeti">
-            <article class="label">
-                <div class="strip"><span>API Paketi</span><span>4 alan</span></div>
-                <div class="body">
-                    <div>
-                        <h2>magaza-api</h2>
-                        <dl class="manifest">
-                            <dt>Yığın</dt>
-                            <dd>Node.js · Express</dd>
-                            <dt>Veritabanı</dt>
-                            <dd>PostgreSQL</dd>
-                            <dt>Kimlik</dt>
-                            <dd>JWT</dd>
-                            <dt>Kaynak</dt>
-                            <dd>/products</dd>
-                            <dt>Ekstralar</dt>
-                            <dd>Docker, API dokümanı, Hız sınırı, CORS, Testler</dd>
-                        </dl>
-                    </div>
-                </div>
-                <div class="foot">
-                    <button type="button" class="btn">Paketi oluştur</button>
-                </div>
-            </article>
-
-            <div class="card">
-                <h3>Alanlar <small>/products</small></h3>
-                <dl class="manifest">
-                    <dt>id</dt>
-                    <dd>otomatik</dd>
-                    <dt>name</dt>
-                    <dd>metin</dd>
-                    <dt>price</dt>
-                    <dd>ondalık sayı</dd>
-                    <dt>stock</dt>
-                    <dd>tam sayı</dd>
-                    <dt>active</dt>
-                    <dd>evet / hayır</dd>
-                    <dt>createdAt</dt>
-                    <dd>otomatik</dd>
-                </dl>
+@if (Api.IsSignedIn)
+{
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/home"><span class="mark" aria-hidden="true">✓</span>TaskAPI</a>
+            <p class="nav-caption">ÇALIŞMA ALANI</p>
+            <nav class="main-menu" aria-label="Ana menü">
+                <NavLink href="/home" Match="NavLinkMatch.All"><span aria-hidden="true">⌂</span>Ana ekran</NavLink>
+                <NavLink href="/tasks" Match="NavLinkMatch.All"><span aria-hidden="true">≡</span>Görevler</NavLink>
+                <NavLink href="/tasks/add" Match="NavLinkMatch.All"><span aria-hidden="true">＋</span>Görev ekle</NavLink>
+                <NavLink href="/tasks/update" Match="NavLinkMatch.All"><span aria-hidden="true">↻</span>Görev güncelle</NavLink>
+                <NavLink href="/tasks/delete" Match="NavLinkMatch.All"><span aria-hidden="true">−</span>Görev sil</NavLink>
+            </nav>
+            <div class="sidebar-account">
+                <div><span class="avatar" aria-hidden="true">@Api.Username[..1].ToUpperInvariant()</span><span>@Api.Username<small>Kullanıcı hesabı</small></span></div>
+                <button class="sidebar-logout" disabled="@Busy" @onclick="Logout">Çıkış yap <span aria-hidden="true">→</span></button>
             </div>
-        </section>
-    </main>
-</div>
+        </aside>
+
+        <div class="app-main">
+            <header class="app-topbar"><span>Çalışma alanı <span class="breadcrumb-separator">/</span> <strong>@PageTitle</strong></span><span class="today">@DateTime.Now.ToString("dd MMMM yyyy", Turkish)</span></header>
+            <main class="page-content">
+                <div class="screen-heading">
+                    <div><p class="eyebrow">GÖREV YÖNETİMİ</p><h1>@PageTitle</h1><p class="sub">@PageDescription</p></div>
+                    @if (page is "home" or "list")
+                    {
+                        <button class="ghost" disabled="@Busy" @onclick="Reload">@(loading ? "Yükleniyor…" : "Listeyi yenile")</button>
+                    }
+                </div>
+
+                @if (error is not null)
+                {
+                    <p class="notice error" role="alert">@error</p>
+                }
+                @if (message is not null)
+                {
+                    <p class="notice success" role="status">@message</p>
+                }
+
+                @if (page == "home")
+                {
+                    <div class="welcome-panel"><div><p>Merhaba, @Api.Username</p><h2>Bugün ne üzerinde çalışıyoruz?</h2><p class="sub">Görevlerini görüntüle veya yeni bir görevle başla.</p></div><a class="btn" href="/tasks/add">＋ Görev ekle</a></div>
+                    <div class="summary-grid">
+                        <div class="summary"><span>Toplam görev</span><strong>@(loading ? "—" : tasks.Count.ToString())</strong></div>
+                        <div class="summary"><span>Geciken görev</span><strong>@(loading ? "—" : tasks.Count(IsOverdue).ToString())</strong></div>
+                        <div class="summary"><span>Önümüzdeki 7 gün</span><strong>@(loading ? "—" : tasks.Count(task => !task.IsCompleted && LocalDate(task.DueDate) >= DateTime.Now && LocalDate(task.DueDate) <= DateTime.Now.AddDays(7)).ToString())</strong></div>
+                    </div>
+                    <h2 class="subsection-title">Hızlı işlemler</h2>
+                    <div class="shortcut-grid">
+                        <a href="/tasks"><span class="shortcut-icon" aria-hidden="true">≡</span><h3>Görevler</h3><p>Sana bağlı bütün görevleri görüntüle.</p><span class="shortcut-link">Listeye git →</span></a>
+                        <a href="/tasks/update"><span class="shortcut-icon" aria-hidden="true">↻</span><h3>Görev güncelle</h3><p>Bir görev seç ve son tarihini düzenle.</p><span class="shortcut-link">Güncellemeye git →</span></a>
+                        <a href="/tasks/delete"><span class="shortcut-icon" aria-hidden="true">−</span><h3>Görev sil</h3><p>Kaldırmak istediğin görevi seç.</p><span class="shortcut-link">Silme ekranına git →</span></a>
+                    </div>
+                }
+                else if (page == "list")
+                {
+                    <section class="content-panel" aria-label="Görev listesi">
+                        <div class="list-toolbar"><div class="filters"><label class="sr" for="search">Görevlerde ara</label><input id="search" type="search" placeholder="Görev adı veya açıklama ara…" @bind="search" @bind:event="oninput" /><label class="sr" for="filter">Duruma göre filtrele</label><select id="filter" @bind="filter"><option value="all">Tüm görevler</option><option value="overdue">Gecikenler</option><option value="upcoming">Yaklaşanlar</option></select></div><a href="/tasks/add" class="btn">＋ Görev ekle</a></div>
+                        @if (loading)
+                        {
+                            <div class="empty-state" role="status"><span class="spinner" aria-hidden="true"></span><h3>Görevler yükleniyor…</h3></div>
+                        }
+                        else if (!FilteredTasks.Any())
+                        {
+                            <div class="empty-state"><h3>@(tasks.Count == 0 ? "Henüz görevin yok." : "Eşleşen görev bulunamadı.")</h3><p>@(tasks.Count == 0 ? "Görev ekle ekranından ilk görevini oluşturabilirsin." : "Aramanı veya filtreni değiştirmeyi dene.")</p></div>
+                        }
+                        else
+                        {
+                            <div class="table-scroll"><table class="tasks-table"><thead><tr><th>Görev</th><th>Son tarih</th><th>Durum</th><th class="actions-column">İşlemler</th></tr></thead><tbody>
+                                @foreach (var task in FilteredTasks)
+                                {
+                                    <tr @key="task.Id"><td><span class="task-number">#@task.Id</span><strong>@task.Title</strong><span class="table-description">@task.Description</span></td><td class="date-cell">@FormatDate(task.DueDate)</td><td><span class="badge @(IsOverdue(task) ? "overdue" : "")">@(task.IsCompleted ? "Tamamlandı" : IsOverdue(task) ? "Gecikti" : "Planlandı")</span></td><td><div class="row-actions"><button class="text-button" disabled="@Busy" @onclick="() => ViewDetails(task.Id)">Detay</button><a href="@($"/tasks/update?id={task.Id}")">Güncelle</a><a class="danger" href="@($"/tasks/delete?id={task.Id}")">Sil</a></div></td></tr>
+                                }
+                            </tbody></table></div>
+                            <p class="table-footer">@FilteredTasks.Count() görev gösteriliyor.</p>
+                        }
+                    </section>
+                    @if (detail is not null)
+                    {
+                        <section class="detail-panel"><div class="section-heading"><h2>@detail.Title</h2><button class="text-button" @onclick="() => detail = null">Kapat</button></div><p class="description">@(string.IsNullOrWhiteSpace(detail.Description) ? "Açıklama eklenmemiş." : detail.Description)</p><p class="sub">Son tarih: @FormatDate(detail.DueDate)</p></section>
+                    }
+                }
+                else if (page == "add")
+                {
+                    <section class="content-panel form-panel"><div class="form-heading"><h2>Görev bilgileri</h2><p class="sub">Görevin adını, açıklamasını ve son tarihini belirle.</p></div>
+                        <form class="task-form" @onsubmit="CreateTask" @onsubmit:preventDefault>
+                            <label class="field" for="title">Görev adı<input id="title" placeholder="Örneğin: Proje raporunu hazırla" required maxlength="200" disabled="@Busy" @bind="title" /></label>
+                            <label class="field" for="description">Açıklama <span class="optional">isteğe bağlı</span><textarea id="description" rows="5" placeholder="Görevle ilgili detayları yaz…" disabled="@Busy" @bind="description"></textarea></label>
+                            <label class="field" for="create-due">Son tarih<input id="create-due" type="datetime-local" required disabled="@Busy" @bind="dueDate" @bind:format="yyyy-MM-ddTHH:mm" /></label>
+                            <p class="field-help">Tarih ve saat, cihazının yerel saatine göre gösterilir.</p>
+                            <div class="form-actions"><a class="ghost" href="/tasks">Vazgeç</a><button class="btn" disabled="@Busy" type="submit">@(saving ? "Oluşturuluyor…" : "Görev oluştur")</button></div>
+                        </form>
+                    </section>
+                }
+                else
+                {
+                    <section class="content-panel form-panel"><div class="form-heading"><h2>@(page == "update" ? "Güncellenecek görevi seç" : "Silinecek görevi seç")</h2><p class="sub">İşlem yapmak istediğin görevi aşağıdaki listeden seç.</p></div>
+                        <label class="field" for="task-select">Görev<select id="task-select" disabled="@Busy" @bind="selectedId" @bind:after="LoadSelection"><option value="">@(loading ? "Görevler yükleniyor…" : "Bir görev seç…")</option>@foreach (var task in tasks.OrderByDescending(task => task.Id)) { <option value="@task.Id">#@task.Id · @task.Title</option> }</select></label>
+                        @if (!loading && tasks.Count == 0)
+                        {
+                            <p class="selection-hint">Henüz bir görevin bulunmuyor. <a href="/tasks/add">Görev ekle</a></p>
+                        }
+                        @if (selected is not null)
+                        {
+                            <div class="selected-task"><span class="task-number">GÖREV #@selected.Id</span><h3>@selected.Title</h3><p class="description">@(string.IsNullOrWhiteSpace(selected.Description) ? "Açıklama eklenmemiş." : selected.Description)</p><p class="sub">Mevcut son tarih: @FormatDate(selected.DueDate)</p></div>
+                            @if (page == "update")
+                            {
+                                <form class="task-form" @onsubmit="UpdateTask" @onsubmit:preventDefault><label class="field" for="update-due">Yeni son tarih<input id="update-due" type="datetime-local" required disabled="@Busy" @bind="dueDate" @bind:format="yyyy-MM-ddTHH:mm" /></label><p class="field-help">Bu ekranda görevin son tarihini güncelleyebilirsin.</p><div class="form-actions"><a class="ghost" href="/tasks">Vazgeç</a><button class="btn" disabled="@Busy" type="submit">@(saving ? "Kaydediliyor…" : "Değişikliği kaydet")</button></div></form>
+                            }
+                            else
+                            {
+                                <div class="delete-warning"><strong>Görevi silmek üzeresin.</strong><p>Devam etmek için aşağıdaki onay kutusunu işaretle.</p></div><label class="confirm-check"><input type="checkbox" disabled="@Busy" @bind="confirmDelete" />Seçtiğim görevi silmek istiyorum.</label><div class="form-actions"><a class="ghost" href="/tasks">Vazgeç</a><button class="btn danger-button" disabled="@(Busy || !confirmDelete)" @onclick="DeleteTask">@(saving ? "Siliniyor…" : "Görevi sil")</button></div>
+                            }
+                        }
+                    </section>
+                }
+            </main>
+        </div>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "id")]
+    public int? RequestedId { get; set; }
+
+    private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
+    private List<ApiClient.TaskItem> tasks = [];
+    private ApiClient.TaskItem? selected;
+    private ApiClient.TaskItem? detail;
+    private int? selectedId;
+    private string page = "home";
+    private string search = "";
+    private string filter = "all";
+    private string title = "";
+    private string description = "";
+    private DateTime dueDate = DateTime.Now.AddDays(1);
+    private bool loading;
+    private bool saving;
+    private bool hasLoaded;
+    private bool confirmDelete;
+    private string? error;
+    private string? message;
+    private bool Busy => loading || saving;
+
+    private string PageTitle => page switch { "list" => "Görevler", "add" => "Görev ekle", "update" => "Görev güncelle", "delete" => "Görev sil", _ => "Ana ekran" };
+    private string PageDescription => page switch { "list" => "Görevlerini tek listede görüntüle ve yönet.", "add" => "Yeni bir görev oluştur ve planına ekle.", "update" => "Bir görev seçerek son tarihini değiştir.", "delete" => "Kaldırmak istediğin görevi seç ve işlemi onayla.", _ => "Görevlerine ve sık kullandığın işlemlere buradan ulaş." };
+
+    private IEnumerable<ApiClient.TaskItem> FilteredTasks => tasks
+        .Where(task => string.IsNullOrWhiteSpace(search) || (task.Title ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) || (task.Description ?? "").Contains(search, StringComparison.OrdinalIgnoreCase))
+        .Where(task => filter == "all" || (filter == "overdue" ? IsOverdue(task) : !task.IsCompleted && LocalDate(task.DueDate) >= DateTime.Now))
+        .OrderBy(task => task.DueDate);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!Api.IsSignedIn)
+        {
+            Navigation.NavigateTo("/login", replace: true);
+            return;
+        }
+
+        var path = Navigation.ToBaseRelativePath(Navigation.Uri).Split('?')[0].TrimEnd('/').ToLowerInvariant();
+        page = path switch { "tasks" => "list", "tasks/add" => "add", "tasks/update" => "update", "tasks/delete" => "delete", _ => "home" };
+        selected = null;
+        selectedId = null;
+        detail = null;
+        confirmDelete = false;
+        title = "";
+        description = "";
+        dueDate = DateTime.Now.AddDays(1);
+        error = null;
+
+        if (!hasLoaded)
+            await Reload();
+
+        if (Api.IsSignedIn && RequestedId is int id && page is "update" or "delete")
+        {
+            selectedId = id;
+            await LoadSelection();
+        }
+    }
+
+    private async Task Reload()
+    {
+        if (Busy)
+            return;
+
+        loading = true;
+        error = null;
+        try
+        {
+            tasks = await Api.GetTasks();
+            hasLoaded = true;
+        }
+        catch (Exception exception) when (IsRequestError(exception)) { ShowError(exception); }
+        finally { loading = false; }
+    }
+
+    private async Task LoadSelection()
+    {
+        selected = null;
+        confirmDelete = false;
+        if (Busy || selectedId is not int id)
+            return;
+
+        saving = true;
+        error = null;
+        message = null;
+        try
+        {
+            selected = await Api.GetTask(id);
+            dueDate = LocalDate(selected.DueDate);
+        }
+        catch (Exception exception) when (IsRequestError(exception)) { ShowError(exception); }
+        finally { saving = false; }
+    }
+
+    private async Task ViewDetails(int id)
+    {
+        if (Busy)
+            return;
+
+        saving = true;
+        error = null;
+        try { detail = await Api.GetTask(id); }
+        catch (Exception exception) when (IsRequestError(exception)) { ShowError(exception); }
+        finally { saving = false; }
+    }
+
+    private async Task CreateTask()
+    {
+        if (Busy)
+            return;
+
+        error = null;
+        if (string.IsNullOrWhiteSpace(title) || UtcDueDate <= DateTime.UtcNow)
+        {
+            error = "Görev adını doldur ve gelecek bir son tarih seç.";
+            return;
+        }
+
+        saving = true;
+        try
+        {
+            tasks.Add(await Api.CreateTask(title.Trim(), description.Trim(), UtcDueDate));
+            message = "Görev başarıyla oluşturuldu.";
+            Navigation.NavigateTo("/tasks");
+        }
+        catch (Exception exception) when (IsRequestError(exception)) { ShowError(exception); }
+        finally { saving = false; }
+    }
+
+    private async Task UpdateTask()
+    {
+        if (Busy || selected is null)
+            return;
+
+        error = null;
+        if (UtcDueDate <= DateTime.UtcNow)
+        {
+            error = "Gelecek bir son tarih seç.";
+            return;
+        }
+
+        saving = true;
+        try
+        {
+            var updated = await Api.UpdateTask(selected.Id, UtcDueDate);
+            tasks = tasks.Select(task => task.Id == updated.Id ? updated : task).ToList();
+            message = "Görevin son tarihi güncellendi.";
+            Navigation.NavigateTo("/tasks");
+        }
+        catch (Exception exception) when (IsRequestError(exception)) { ShowError(exception); }
+        finally { saving = false; }
+    }
+
+    private async Task DeleteTask()
+    {
+        if (Busy || selected is null || !confirmDelete)
+            return;
+
+        saving = true;
+        error = null;
+        try
+        {
+            var id = selected.Id;
+            await Api.DeleteTask(id);
+            tasks.RemoveAll(task => task.Id == id);
+            message = "Görev silindi.";
+            Navigation.NavigateTo("/tasks");
+        }
+        catch (Exception exception) when (IsRequestError(exception)) { ShowError(exception); }
+        finally { saving = false; }
+    }
+
+    private async Task Logout()
+    {
+        if (Busy)
+            return;
+
+        saving = true;
+        try
+        {
+            var revoked = await Api.Logout();
+            Navigation.NavigateTo(revoked ? "/login?logout=done" : "/login?logout=offline", replace: true);
+        }
+        finally { saving = false; }
+    }
+
+    private void ShowError(Exception exception)
+    {
+        if (!Api.IsSignedIn)
+        {
+            tasks.Clear();
+            Navigation.NavigateTo("/login?logout=expired", replace: true);
+            return;
+        }
+
+        error = exception is HttpRequestException request && request.StatusCode is not null
+            ? request.Message : "İşlem tamamlanamadı. Bağlantını kontrol edip tekrar dene.";
+    }
+
+    private DateTime UtcDueDate => DateTime.SpecifyKind(dueDate, DateTimeKind.Unspecified).ToUniversalTime();
+    private static bool IsRequestError(Exception exception) => exception is HttpRequestException or InvalidOperationException or System.Text.Json.JsonException or OperationCanceledException;
+    private static DateTime LocalDate(DateTime value) => DateTime.SpecifyKind(value, DateTimeKind.Utc).ToLocalTime();
+    private static bool IsOverdue(ApiClient.TaskItem task) => !task.IsCompleted && LocalDate(task.DueDate) < DateTime.Now;
+    private static string FormatDate(DateTime value) => LocalDate(value).ToString("dd MMM yyyy · HH:mm", Turkish);
+}

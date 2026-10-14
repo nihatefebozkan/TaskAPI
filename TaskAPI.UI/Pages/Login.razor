@@ -1,7 +1,7 @@
 @page "/login"
 @using System.Net
 @using System.Net.Http.Json
-@inject HttpClient Http
+@inject ApiClient Api
 @inject NavigationManager Navigation
 
 <PageTitle>Giriş yap · TaskAPI</PageTitle>
@@ -11,20 +11,20 @@
         <a href="/" class="brand"><span class="mark" aria-hidden="true">{ }</span>TaskAPI</a>
 
         <h1>Giriş yap</h1>
-        <p class="sub">Görevlerine ulaşmak için hesabına giriş yap.</p>
+        <p class="sub">Planına kaldığın yerden devam et.</p>
 
         <form class="auth-form" @onsubmit="Submit" @onsubmit:preventDefault>
             <label class="field" for="login-username">
                 Kullanıcı adı
                 <input type="text" id="login-username" autocomplete="username" spellcheck="false"
-                       @bind="username" />
+                       required maxlength="100" @bind="username" />
             </label>
 
             <label class="field" for="login-password">
                 Şifre
                 <span class="pw">
                     <input type="@(showPassword ? "text" : "password")" id="login-password"
-                           autocomplete="current-password" @bind="password" />
+                           autocomplete="current-password" required @bind="password" />
                     <button type="button" aria-pressed="@(showPassword ? "true" : "false")"
                             @onclick="() => showPassword = !showPassword">
                         @(showPassword ? "Gizle" : "Göster")
@@ -48,6 +48,7 @@
         </form>
 
         <p class="switch">Hesabın yok mu? <a href="register">Kayıt ol</a></p>
+        <p class="session-note">Sayfayı yenilediğinde güvenliğin için tekrar giriş yapman gerekir.</p>
     </div>
 </div>
 
@@ -59,8 +60,34 @@
     private string? successMessage;
     private bool isLoading;
 
+    [SupplyParameterFromQuery(Name = "registered")]
+    public bool Registered { get; set; }
+
+    [SupplyParameterFromQuery(Name = "logout")]
+    public string? LogoutStatus { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Api.IsSignedIn)
+            Navigation.NavigateTo("/home", replace: true);
+    }
+
+    protected override void OnParametersSet()
+    {
+        successMessage = Registered ? "Hesabın oluşturuldu. Şimdi giriş yapabilirsin." : null;
+        if (LogoutStatus == "offline")
+            errorMessage = "Bu cihazdan çıkış yapıldı. Sunucuya ulaşılamadığı için oturum iptali doğrulanamadı.";
+        else if (LogoutStatus == "expired")
+            errorMessage = "Oturumun sona erdi. Lütfen tekrar giriş yap.";
+        else if (LogoutStatus == "done")
+            successMessage = "Çıkış yapıldı.";
+    }
+
     private async Task Submit()
     {
+        if (isLoading)
+            return;
+
         errorMessage = null;
         successMessage = null;
 
@@ -73,22 +100,15 @@
         isLoading = true;
         try
         {
-            var response = await Http.PostAsJsonAsync("api/Auth/Login", new { username, password });
-
-            if (response.IsSuccessStatusCode)
-            {
-                Navigation.NavigateTo("/home");
-                return;
-            }
-
-            errorMessage = response.StatusCode == HttpStatusCode.Unauthorized
-                ? "Kullanıcı adı veya şifre hatalı."
-                : "Giriş sırasında bir hata oluştu.";
+            await Api.Login(username.Trim(), password);
             password = "";
+            Navigation.NavigateTo("/home", replace: true);
         }
-        catch (HttpRequestException)
+        catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException or System.Text.Json.JsonException or OperationCanceledException)
         {
-            errorMessage = "Sunucuya ulaşılamadı.";
+            errorMessage = exception is HttpRequestException request && request.StatusCode is not null
+                ? request.Message : "Giriş tamamlanamadı. Bağlantını kontrol edip tekrar dene.";
+            password = "";
         }
         finally
         {

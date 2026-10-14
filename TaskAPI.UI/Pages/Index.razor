@@ -1,9 +1,10 @@
 @page "/"
 @inject NavigationManager Navigation
+@inject ApiClient Api
 
 @code {
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo("/login", replace: true);
+        Navigation.NavigateTo(Api.IsSignedIn ? "/home" : "/login", replace: true);
     }
 }

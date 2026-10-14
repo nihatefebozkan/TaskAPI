@@ -4,5 +4,7 @@
     {
         public required string AccessToken { get; set; }
         public required DateTime ExpireAt { get; set; }
+        public string RefreshToken { get; set; }
+        public DateTime RefreshTokenExpireAt { get; set; }
     }
 }

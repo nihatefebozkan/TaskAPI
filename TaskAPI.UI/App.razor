@@ -3,4 +3,13 @@
         <RouteView RouteData="@routeData" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
+    <NotFound>
+        <div class="wrap auth">
+            <div class="auth-card">
+                <h1>Sayfa bulunamadı</h1>
+                <p class="sub">Aradığın sayfa burada değil.</p>
+                <a class="btn" href="/">Başlangıca dön</a>
+            </div>
+        </div>
+    </NotFound>
 </Router>

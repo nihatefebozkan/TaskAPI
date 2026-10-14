@@ -12,6 +12,8 @@
         public string Username { get; set; }
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? RefreshTokenHash { get; set; }
+        public DateTime? RefreshTokenExpireAt { get; set; }
     }
 }
 

@@ -41,6 +41,34 @@ namespace TaskAPI.API.Controllers
 
                 }, logger, httpContextAccessor, nameof(Login));
         }
+
+        [AllowAnonymous]
+        [HttpPost("Refresh")]
+        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+        {
+            return await MethodExecutor.ExecuteAsync<IActionResult>(
+                async () =>
+                {
+                    var response = await authService.Refresh(refreshToken);
+
+                    return Ok(response);
+
+                }, logger, httpContextAccessor, nameof(Refresh));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout([FromBody] string refreshToken)
+        {
+            return await MethodExecutor.ExecuteAsync<IActionResult>(
+                async () =>
+                {
+                    var result = await authService.Logout(refreshToken);
+
+                    return Ok(result);
+
+                }, logger, httpContextAccessor, nameof(Logout));
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore; //Entity Framework Core kütüphanesini içe aktarır.
 using Scalar.AspNetCore;
+using TaskAPI.Core.Helpers;
 using TaskAPI.Application.Interfaces;
 using TaskAPI.Application.Mapping;
 using TaskAPI.Application.Services;
@@ -30,6 +31,7 @@ public partial class Program
         builder.Services.AddScoped<ITaskService, TaskService>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IAccountService, AccountService>();
+        builder.Services.AddScoped<JwtHelper>();
         builder.Services.AddSingleton<IPepperKeyProvider, TaskAPI.Infrastructure.Security.ConfigurationProvider>();
         builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
         builder.Services.AddHttpContextAccessor();

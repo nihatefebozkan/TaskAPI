@@ -18,6 +18,14 @@ namespace TaskAPI.Infrastructure.Data
                 .HasMany(task => task.Users)
                 .WithMany()
                 .UsingEntity("TaskUser");
+
+            modelBuilder.Entity<TaskAPI.Domain.Entity.User>()
+                .Property(user => user.RefreshTokenHash)
+                .HasMaxLength(64);
+
+            modelBuilder.Entity<TaskAPI.Domain.Entity.User>()
+                .HasIndex(user => user.RefreshTokenHash)
+                .IsUnique();
         }
     }
 }
